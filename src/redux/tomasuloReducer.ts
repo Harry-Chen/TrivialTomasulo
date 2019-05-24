@@ -147,10 +147,15 @@ export default function tomasuloReducer(
       return produce(state, draft => {
         const newState = {
           ...initialState,
-          instructions: state.instructions,
+          instructions: [] as Instruction[],
         };
-        for (const i of newState.instructions) {
-          i.issueTime = i.writeTime = i.executionTime = 0;
+        for (const i of state.instructions) {
+          // make a new copy
+          const j = Object.assign(Object.create(Object.getPrototypeOf(i)), i) as Instruction;
+          j.issueTime = 0;
+          j.executionTime = 0;
+          j.writeTime = 0;
+          newState.instructions.push(j);
         }
         return newState;
       });
