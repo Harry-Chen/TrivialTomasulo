@@ -1,0 +1,58 @@
+{
+  "name": "TrivialTomasolu",
+  "version": "0.0.1",
+  "author": "Harry Chen",
+  "license": "MIT",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Harry-Chen/TrivialTomasolu"
+  },
+  "scripts": {
+    "format": "prettier --write \"src/**/*.ts\" \"src/**/*.tsx\" \"src/**/*.js\"",
+    "build": "webpack --config webpack.prod.js",
+    "watch": "webpack -w --config webpack.dev.js",
+    "lint": "tslint 'src/**/*.{ts, tsx}'"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.78",
+    "@types/classnames": "^2.2.7",
+    "@types/lodash": "^4.14.121",
+    "@types/node": "^10.12.19",
+    "@types/react": "^16.7.22",
+    "@types/react-dom": "^16.0.11",
+    "@types/react-redux": "^7.0.1",
+    "css-loader": "^1.0.1",
+    "html-webpack-plugin": "^3.2.0",
+    "node-sass": "^4.11.0",
+    "null-loader": "^0.1.1",
+    "prettier": "^1.16.4",
+    "sass-loader": "^7.1.0",
+    "style-loader": "^0.23.1",
+    "ts-loader": "^5.3.3",
+    "tslint": "^5.12.1",
+    "tslint-config-airbnb": "^5.11.1",
+    "tslint-react": "^3.6.0",
+    "typescript": "^3.2.4",
+    "typings-for-css-modules-loader": "^1.7.0",
+    "webpack": "^4.29.0",
+    "webpack-bundle-analyzer": "^3.0.3",
+    "webpack-cli": "^3.2.1",
+    "webpack-dev-server": "^3.1.14",
+    "webpack-merge": "^4.2.1"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.12",
+    "@fortawesome/free-solid-svg-icons": "^5.6.3",
+    "@fortawesome/react-fontawesome": "^0.1.4",
+    "@material-ui/core": "^3.9.1",
+    "@material-ui/styles": "^3.0.0-alpha.9",
+    "classnames": "^2.2.6",
+    "immer": "^3.1.2",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0",
+    "react-redux": "^6.0.0",
+    "redux": "^4.0.1",
+    "redux-logger": "^3.0.6"
+  }
+}
