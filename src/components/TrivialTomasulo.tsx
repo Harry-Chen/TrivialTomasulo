@@ -33,6 +33,7 @@ class TrivialTomasulo extends React.PureComponent<AppProps, never> {
           <TableRow>
             <TableCell>指令</TableCell>
             <TableCell>当前</TableCell>
+            <TableCell>剩余周期</TableCell>
             <TableCell>Issue</TableCell>
             <TableCell>Execution</TableCell>
             <TableCell>Write</TableCell>
@@ -44,6 +45,8 @@ class TrivialTomasulo extends React.PureComponent<AppProps, never> {
               <TableRow>
                 <TableCell>{i.raw}</TableCell>
                 <TableCell>{this.props.state.pc === i.num ? 'Yes' : 'No'}</TableCell>
+                <TableCell>{i.executionTime > 0 && i.writeTime === 0 ?
+                  i.executionTime + i.cost - 1 - this.props.state.clock : ''}</TableCell>
                 <TableCell>{i.issueTime === 0 ? '' : i.issueTime}</TableCell>
                 <TableCell>{i.executionTime === 0 ? '' : i.executionTime}</TableCell>
                 <TableCell>{i.writeTime === 0 ? '' : i.writeTime}</TableCell>
@@ -97,8 +100,8 @@ class TrivialTomasulo extends React.PureComponent<AppProps, never> {
                 <TableCell>{i.busy ? 'Yes' : 'No'}</TableCell>
                 <TableCell>{i.unit ? i.unit.getName() : ''}</TableCell>
                 <TableCell>{i.op ? i.op : ''}</TableCell>
-                <TableCell>{i.Vj ? i.Vj : ''}</TableCell>
-                <TableCell>{i.Vk ? i.Vk : ''}</TableCell>
+                <TableCell>{i.Qj === undefined ? i.Vj : ''}</TableCell>
+                <TableCell>{i.Qk === undefined ? i.Vk : ''}</TableCell>
                 <TableCell>{i.Qj ? i.Qj.getName() : ''}</TableCell>
                 <TableCell>{i.Qk ? i.Qk.getName() : ''}</TableCell>
               </TableRow>
@@ -111,8 +114,8 @@ class TrivialTomasulo extends React.PureComponent<AppProps, never> {
                 <TableCell>{i.busy ? 'Yes' : 'No'}</TableCell>
                 <TableCell>{i.unit ? i.unit.getName() : ''}</TableCell>
                 <TableCell>{i.op ? i.op : ''}</TableCell>
-                <TableCell>{i.Vj ? i.Vj : ''}</TableCell>
-                <TableCell>{i.Vk ? i.Vk : ''}</TableCell>
+                <TableCell>{i.Qj === undefined ? i.Vj : ''}</TableCell>
+                <TableCell>{i.Qk === undefined ? i.Vk : ''}</TableCell>
                 <TableCell>{i.Qj ? i.Qj.getName() : ''}</TableCell>
                 <TableCell>{i.Qk ? i.Qk.getName() : ''}</TableCell>
               </TableRow>
@@ -126,7 +129,7 @@ class TrivialTomasulo extends React.PureComponent<AppProps, never> {
           <TableRow>
             {
               this.props.state.registers.map(r => (
-                <TableCell>{r.num}</TableCell>
+                <TableCell>{`Reg${r.num}`}</TableCell>
               ))
             }
           </TableRow>
@@ -139,20 +142,6 @@ class TrivialTomasulo extends React.PureComponent<AppProps, never> {
               ))
             }
           </TableRow>
-        </TableBody>
-      </Table>
-
-      <Table padding={'dense'}>
-        <TableHead>
-          <TableRow>
-            {
-              this.props.state.registers.map(r => (
-                <TableCell>{r.num}</TableCell>
-              ))
-            }
-          </TableRow>
-        </TableHead>
-        <TableBody>
           <TableRow>
             {
               this.props.state.registers.map(r => (
@@ -172,7 +161,7 @@ const mapStateToProps = (state: TomasuloStatus): Partial<AppProps> =>  {
   };
 };
 
-const mapDispatchToProps = (dispatch: Dispatch<any>): Partial<AppProps> => {
+const mapDispatchToProps = (dispatch: any): Partial<AppProps> => {
   return {
     import: (s: string) => { dispatch(importInstructions(s)); },
     reset: () => { dispatch(reset()); },

@@ -20,12 +20,9 @@ const loadApp = () => {
 loadApp();
 
 const TEST1 = `
-LD,F1,0x3
-LD,F2,0x0
-LD,F3,0xFFFFFFFF
-ADD,F2,F1,F2
-ADD,F1,F1,F3
-JUMP,0x0,F1,0xFFFFFFFE
+LD,F1,0x1
+LD,F2,0x2
+JUMP,0x1,F1,0xFFFFFFFF
 `;
 
 store.dispatch(importInstructions(TEST1));

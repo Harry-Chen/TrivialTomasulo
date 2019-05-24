@@ -50,9 +50,10 @@ function checkStation(rs: ReservationStation, state: TomasuloStatus, dispatch) {
       dispatch(writeInstructionResult(rs.instructionNumber, rs.num - 1));
     }
   } else {
+    console.log(rs);
     // see if can execution (after a write back)
     if (rs instanceof AddSubStation || rs instanceof MulDivStation) {
-      if (rs.Vj !== undefined && rs.Vk !== undefined) {
+      if (rs.Qj === undefined && rs.Qk === undefined) {
         // ready to execute, try to find a free function unit
         const units = rs instanceof AddSubStation ?
           state.station.addSubUnit : state.station.mulDivUnit;
@@ -67,7 +68,7 @@ function checkStation(rs: ReservationStation, state: TomasuloStatus, dispatch) {
         dispatch(beginExecuteInstruction(rs.instructionNumber, rs.num - 1, freeUnits[0].num - 1));
       }
     } else if (rs instanceof JumpStation) {
-      if (rs.Vj !== undefined) {
+      if (rs.Qj === undefined) {
         dispatch(beginExecuteInstruction(rs.instructionNumber, rs.num - 1, 0));
       }
     }

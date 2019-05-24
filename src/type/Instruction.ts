@@ -35,7 +35,7 @@ export class ThreeRegisterInstruction extends Instruction {
 
 export class Ld extends Instruction {
   public cost: number = 3;
-  public name: Operation = Operation.LD;
+  public operation: Operation = Operation.LD;
   public srcIm: number;
   public dstReg: number;
 
@@ -48,7 +48,7 @@ export class Ld extends Instruction {
 
 export class Jump extends Instruction {
   public cost: number = 1;
-  public name: Operation = Operation.JUMP;
+  public operation: Operation = Operation.JUMP;
   public compareSrcReg: number;
   public compareDstIm: number;
   public offset: number;
@@ -63,20 +63,20 @@ export class Jump extends Instruction {
 
 export class Add extends ThreeRegisterInstruction {
   public cost: number = 3;
-  public name: Operation = Operation.ADD;
+  public operation: Operation = Operation.ADD;
 }
 
 export class Sub extends ThreeRegisterInstruction {
   public cost: number = 3;
-  public name: Operation = Operation.SUB;
+  public operation: Operation = Operation.SUB;
 }
 
 export class Mul extends ThreeRegisterInstruction {
   public cost: number = 12;
-  public name: Operation = Operation.MUL;
+  public operation: Operation = Operation.MUL;
 }
 
 export class Div extends ThreeRegisterInstruction {
   public cost: number = 40;
-  public name: Operation = Operation.DIV;
+  public operation: Operation = Operation.DIV;
 }

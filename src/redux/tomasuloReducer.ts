@@ -103,34 +103,34 @@ for (let i = 0; i < 31; ++i) {
 function broadcast(result: number, rs: ReservationStation, dstReg: number, state: TomasuloStatus) {
   // write to registers if needed
   for (const s of state.registers) {
-    if (s.source && s.source.op === rs.op && s.source.num === rs.num) {
+    if (s.source && s.source.getName() === rs.getName()) {
       s.source = undefined;
       s.content = result;
     }
   }
   // write to reservation stations
   for (const s of state.station.addSubStation) {
-    if (s.Qj && s.Qj.op === rs.op && s.Qj.num === rs.num) {
+    if (s.Qj && s.Qj.getName() === rs.getName()) {
       s.Qj = undefined;
       s.Vj = result;
     }
-    if (s.Qk && s.Qk.op === rs.op && s.Qk.num === rs.num) {
+    if (s.Qk && s.Qk.getName() === rs.getName()) {
       s.Qk = undefined;
       s.Vk = result;
     }
   }
   for (const s of state.station.mulDivStation) {
-    if (s.Qj && s.Qj.op === rs.op && s.Qj.num === rs.num) {
+    if (s.Qj && s.Qj.getName() === rs.getName()) {
       s.Qj = undefined;
       s.Vj = result;
     }
-    if (s.Qk && s.Qk.op === rs.op && s.Qk.num === rs.num) {
+    if (s.Qk && s.Qk.getName() === rs.getName()) {
       s.Qk = undefined;
       s.Vk = result;
     }
   }
   const j = state.station.jumpStation;
-  if (j.Qj && j.Qj.op === rs.op && j.Qj.num === rs.num) {
+  if (j.Qj && j.Qj.getName() === rs.getName()) {
     j.Qj = undefined;
     j.Vj = result;
   }
@@ -172,6 +172,8 @@ export default function tomasuloReducer(state: TomasuloStatus = initialState,
       return produce(state, draft => {
         const ins = draft.instructions[action.instructionNumber];
         ins.issueTime = draft.clock;
+        ins.executionTime = 0;
+        ins.writeTime = 0;
 
         if (ins instanceof Add || ins instanceof Sub || ins instanceof Mul || ins instanceof Div) {
           // fill in the ops field, Q can be undefined if no need to wait
@@ -328,6 +330,7 @@ export default function tomasuloReducer(state: TomasuloStatus = initialState,
           rs.Vj = undefined;
           rs.Vk = undefined;
           rs.instructionNumber = undefined;
+          rs.executionTime = 0;
           // do CDB broadcast
           broadcast(result, rs, ins.dstReg, draft);
 
@@ -337,6 +340,7 @@ export default function tomasuloReducer(state: TomasuloStatus = initialState,
           rs.busy = false;
           rs.op = undefined;
           rs.instructionNumber = undefined;
+          rs.executionTime = 0;
           broadcast(ins.srcIm, rs, ins.dstReg, draft);
         } else if (ins instanceof Jump) {
           throw Error('Jump instruction has no writeback stage!');
