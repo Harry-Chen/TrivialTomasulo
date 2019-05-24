@@ -11,7 +11,7 @@ const store = createStore(reducer);
 const loadApp = () => {
   ReactDOM.render(
     <Provider store={store}>
-        <TrivialTomasulo />
+      <TrivialTomasulo />
     </Provider>,
     document.querySelector('#main'),
   );

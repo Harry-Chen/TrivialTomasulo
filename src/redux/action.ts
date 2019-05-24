@@ -1,6 +1,12 @@
 import { AnyAction } from 'redux';
 import { TomasuloStatus } from './tomasuloReducer';
-import { AddSubStation, JumpStation, LoadBuffer, MulDivStation, ReservationStation } from '../type/ReservationStation';
+import {
+  AddSubStation,
+  JumpStation,
+  LoadBuffer,
+  MulDivStation,
+  ReservationStation,
+} from '../type/ReservationStation';
 import { Add, Div, Jump, Ld, Mul, Sub } from '../type/Instruction';
 
 export enum ActionType {
@@ -14,10 +20,10 @@ export enum ActionType {
 }
 
 interface ITomasuloAction extends AnyAction {
-  instructions ?: string;
-  instructionNumber ?: number;
-  stationNumber ?: number;
-  funcUnitNumber ?: number;
+  instructions?: string;
+  instructionNumber?: number;
+  stationNumber?: number;
+  funcUnitNumber?: number;
 }
 
 export type TomasuloAction = ITomasuloAction;
@@ -54,8 +60,8 @@ function checkStation(rs: ReservationStation, state: TomasuloStatus, dispatch) {
     if (rs instanceof AddSubStation || rs instanceof MulDivStation) {
       if (rs.Vj === undefined && rs.Vk === undefined) {
         // ready to execute, try to find a free function unit
-        const units = rs instanceof AddSubStation ?
-          state.station.addSubUnit : state.station.mulDivUnit;
+        const units =
+          rs instanceof AddSubStation ? state.station.addSubUnit : state.station.mulDivUnit;
         const freeUnits = units.filter(u => !u.busy);
         if (freeUnits.length > 0) {
           dispatch(beginExecuteInstruction(rs.instructionNumber, rs.num - 1, freeUnits[0].num - 1));
@@ -102,10 +108,16 @@ export function nextStep() {
     // which is equivalent to insert a delay after a jump calculation
     if (!state.stall) {
       const nextIns = getState().instructions[getState().pc];
-      if (nextIns instanceof Add || nextIns instanceof Sub
-        || nextIns instanceof Mul || nextIns instanceof Div) {
-        const stations = (nextIns instanceof Add || nextIns instanceof Sub) ?
-          getState().station.addSubStation : getState().station.mulDivStation;
+      if (
+        nextIns instanceof Add ||
+        nextIns instanceof Sub ||
+        nextIns instanceof Mul ||
+        nextIns instanceof Div
+      ) {
+        const stations =
+          nextIns instanceof Add || nextIns instanceof Sub
+            ? getState().station.addSubStation
+            : getState().station.mulDivStation;
         const freeStations = stations.filter(s => !s.busy);
         if (freeStations.length > 0) {
           dispatch(issueInstruction(getState().pc, freeStations[0].num - 1));
@@ -138,8 +150,11 @@ function issueInstruction(instructionNumber: number, stationNumber: number): Tom
   };
 }
 
-function beginExecuteInstruction(instructionNumber: number, stationNumber: number,
-                                        funcUnitNumber: number): TomasuloAction {
+function beginExecuteInstruction(
+  instructionNumber: number,
+  stationNumber: number,
+  funcUnitNumber: number,
+): TomasuloAction {
   return {
     instructionNumber,
     stationNumber,
@@ -148,8 +163,11 @@ function beginExecuteInstruction(instructionNumber: number, stationNumber: numbe
   };
 }
 
-function finishExecuteInstruction(instructionNumber: number, stationNumber: number,
-                                        funcUnitNumber: number): TomasuloAction {
+function finishExecuteInstruction(
+  instructionNumber: number,
+  stationNumber: number,
+  funcUnitNumber: number,
+): TomasuloAction {
   return {
     instructionNumber,
     stationNumber,

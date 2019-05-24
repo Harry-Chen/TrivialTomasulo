@@ -137,8 +137,10 @@ function broadcast(result: number, rs: ReservationStation, dstReg: number, state
 }
 
 // the main reducer
-export default function tomasuloReducer(state: TomasuloStatus = initialState,
-                                        action: TomasuloAction): TomasuloStatus {
+export default function tomasuloReducer(
+  state: TomasuloStatus = initialState,
+  action: TomasuloAction,
+): TomasuloStatus {
   switch (action.type) {
     case ActionType.RESET:
       // reset to initial state with imported instructions
@@ -203,7 +205,6 @@ export default function tomasuloReducer(state: TomasuloStatus = initialState,
           } else {
             draft.stall = true;
           }
-
         } else if (ins instanceof Ld) {
           const rs = draft.station.loadBuffer[action.stationNumber];
           // station status
@@ -220,7 +221,6 @@ export default function tomasuloReducer(state: TomasuloStatus = initialState,
           } else {
             draft.stall = true;
           }
-
         } else if (ins instanceof Jump) {
           const rs = draft.station.jumpStation;
           // station status
@@ -249,20 +249,20 @@ export default function tomasuloReducer(state: TomasuloStatus = initialState,
         if (ins instanceof Add || ins instanceof Sub) {
           // occupy given function unit
           draft.station.addSubUnit[action.funcUnitNumber].busy = true;
-          draft.station.addSubStation[action.stationNumber].unit
-            = draft.station.addSubUnit[action.funcUnitNumber];
+          draft.station.addSubStation[action.stationNumber].unit =
+            draft.station.addSubUnit[action.funcUnitNumber];
           draft.station.addSubStation[action.stationNumber].executionTime = draft.clock;
         } else if (ins instanceof Mul || ins instanceof Div) {
           // occupy given function unit
           draft.station.mulDivUnit[action.funcUnitNumber].busy = true;
-          draft.station.mulDivStation[action.stationNumber].unit
-            = draft.station.mulDivUnit[action.funcUnitNumber];
+          draft.station.mulDivStation[action.stationNumber].unit =
+            draft.station.mulDivUnit[action.funcUnitNumber];
           draft.station.mulDivStation[action.stationNumber].executionTime = draft.clock;
         } else if (ins instanceof Ld) {
           // occupy given function unit
           draft.station.loadUnit[action.funcUnitNumber].busy = true;
-          draft.station.loadBuffer[action.stationNumber].unit
-            = draft.station.loadUnit[action.funcUnitNumber];
+          draft.station.loadBuffer[action.stationNumber].unit =
+            draft.station.loadUnit[action.funcUnitNumber];
           draft.station.loadBuffer[action.stationNumber].executionTime = draft.clock;
         } else if (ins instanceof Jump) {
           // change pc
@@ -324,17 +324,17 @@ export default function tomasuloReducer(state: TomasuloStatus = initialState,
         }
 
         if (ins instanceof Add || ins instanceof Sub || ins instanceof Mul || ins instanceof Div) {
-
           let rs: ArithmeticStation;
           let result = 0;
 
           if (ins instanceof Add || ins instanceof Sub) {
             rs = draft.station.addSubStation[action.stationNumber];
-            result = (ins instanceof Add) ? (rs.Qj + rs.Qk) & 0xFFFFFFFFF : (rs.Qj - rs.Qk) & 0xFFFFFFFFF;
+            result =
+              ins instanceof Add ? (rs.Qj + rs.Qk) & 0xfffffffff : (rs.Qj - rs.Qk) & 0xfffffffff;
           } else {
             rs = draft.station.mulDivStation[action.stationNumber];
             // black magic to mimic integer division of C
-            result = (ins instanceof Mul) ? (rs.Qj * rs.Qk) & 0xFFFFFFFF : ~~(rs.Qj / rs.Qk);
+            result = ins instanceof Mul ? (rs.Qj * rs.Qk) & 0xffffffff : ~~(rs.Qj / rs.Qk);
           }
 
           // clear the state of reservation station
@@ -346,8 +346,7 @@ export default function tomasuloReducer(state: TomasuloStatus = initialState,
           rs.executionTime = 0;
           // do CDB broadcast
           broadcast(result, rs, ins.dstReg, draft);
-
-        }  else if (ins instanceof Ld) {
+        } else if (ins instanceof Ld) {
           const rs = draft.station.loadBuffer[action.stationNumber];
           rs.imm = undefined;
           rs.busy = false;
@@ -360,6 +359,7 @@ export default function tomasuloReducer(state: TomasuloStatus = initialState,
         }
       });
 
-    default: return state;
+    default:
+      return state;
   }
 }

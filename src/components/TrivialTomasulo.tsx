@@ -14,87 +14,79 @@ import Button from '@material-ui/core/Button';
 
 class TrivialTomasulo extends React.PureComponent<AppProps, never> {
   public render() {
-    return (<>
+    return (
+      <>
+        <span>{`Clock: ${this.props.state.clock}`}</span>
 
-      <span>
-        {`Clock: ${this.props.state.clock}`}
-      </span>
+        <Button onClick={this.props.reset}>重置</Button>
 
-      <Button onClick={this.props.reset}>
-        重置
-      </Button>
+        <Button onClick={this.props.nextStep}>下一步</Button>
 
-      <Button onClick={this.props.nextStep}>
-        下一步
-      </Button>
-
-      <Table padding={'dense'}>
-        <TableHead>
-          <TableRow>
-            <TableCell>指令</TableCell>
-            <TableCell>当前</TableCell>
-            <TableCell>剩余周期</TableCell>
-            <TableCell>Issue</TableCell>
-            <TableCell>Execution</TableCell>
-            <TableCell>Write</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {
-            this.props.state.instructions.map(i => (
+        <Table padding={'dense'}>
+          <TableHead>
+            <TableRow>
+              <TableCell>指令</TableCell>
+              <TableCell>当前</TableCell>
+              <TableCell>剩余周期</TableCell>
+              <TableCell>Issue</TableCell>
+              <TableCell>Execution</TableCell>
+              <TableCell>Write</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {this.props.state.instructions.map(i => (
               <TableRow>
                 <TableCell>{i.raw}</TableCell>
                 <TableCell>{this.props.state.pc === i.num ? 'Yes' : 'No'}</TableCell>
-                <TableCell>{i.executionTime > 0 && i.writeTime === 0 ?
-                  i.executionTime + i.cost - 1 - this.props.state.clock : ''}</TableCell>
+                <TableCell>
+                  {i.executionTime > 0 && i.writeTime === 0
+                    ? i.executionTime + i.cost - 1 - this.props.state.clock
+                    : ''}
+                </TableCell>
                 <TableCell>{i.issueTime === 0 ? '' : i.issueTime}</TableCell>
                 <TableCell>{i.executionTime === 0 ? '' : i.executionTime}</TableCell>
                 <TableCell>{i.writeTime === 0 ? '' : i.writeTime}</TableCell>
               </TableRow>
-            ))
-          }
-        </TableBody>
-      </Table>
+            ))}
+          </TableBody>
+        </Table>
 
-      <Table padding={'dense'}>
-        <TableHead>
-          <TableRow>
-            <TableCell>名称</TableCell>
-            <TableCell>Busy</TableCell>
-            <TableCell>FU</TableCell>
-            <TableCell>Content</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {
-            this.props.state.station.loadBuffer.map(i => (
+        <Table padding={'dense'}>
+          <TableHead>
+            <TableRow>
+              <TableCell>名称</TableCell>
+              <TableCell>Busy</TableCell>
+              <TableCell>FU</TableCell>
+              <TableCell>Content</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {this.props.state.station.loadBuffer.map(i => (
               <TableRow>
                 <TableCell>{i.getName()}</TableCell>
                 <TableCell>{i.busy ? 'Yes' : 'No'}</TableCell>
                 <TableCell>{i.unit ? i.unit.getName() : ''}</TableCell>
                 <TableCell>{i.imm}</TableCell>
               </TableRow>
-            ))
-          }
-        </TableBody>
-      </Table>
+            ))}
+          </TableBody>
+        </Table>
 
-      <Table padding={'dense'}>
-        <TableHead>
-          <TableRow>
-            <TableCell>名称</TableCell>
-            <TableCell>Busy</TableCell>
-            <TableCell>FU</TableCell>
-            <TableCell>Operation</TableCell>
-            <TableCell>Vj</TableCell>
-            <TableCell>Vk</TableCell>
-            <TableCell>Qj</TableCell>
-            <TableCell>Qk</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {
-            this.props.state.station.addSubStation.map(i => (
+        <Table padding={'dense'}>
+          <TableHead>
+            <TableRow>
+              <TableCell>名称</TableCell>
+              <TableCell>Busy</TableCell>
+              <TableCell>FU</TableCell>
+              <TableCell>Operation</TableCell>
+              <TableCell>Vj</TableCell>
+              <TableCell>Vk</TableCell>
+              <TableCell>Qj</TableCell>
+              <TableCell>Qk</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {this.props.state.station.addSubStation.map(i => (
               <TableRow>
                 <TableCell>{i.getName()}</TableCell>
                 <TableCell>{i.busy ? 'Yes' : 'No'}</TableCell>
@@ -105,10 +97,8 @@ class TrivialTomasulo extends React.PureComponent<AppProps, never> {
                 <TableCell>{i.Vj ? i.Vj.getName() : ''}</TableCell>
                 <TableCell>{i.Vk ? i.Vk.getName() : ''}</TableCell>
               </TableRow>
-            ))
-          }
-          {
-            this.props.state.station.mulDivStation.map(i => (
+            ))}
+            {this.props.state.station.mulDivStation.map(i => (
               <TableRow>
                 <TableCell>{i.getName()}</TableCell>
                 <TableCell>{i.busy ? 'Yes' : 'No'}</TableCell>
@@ -119,43 +109,37 @@ class TrivialTomasulo extends React.PureComponent<AppProps, never> {
                 <TableCell>{i.Vj ? i.Vj.getName() : ''}</TableCell>
                 <TableCell>{i.Vk ? i.Vk.getName() : ''}</TableCell>
               </TableRow>
-            ))
-          }
-        </TableBody>
-      </Table>
+            ))}
+          </TableBody>
+        </Table>
 
-      <Table padding={'dense'}>
-        <TableHead>
-          <TableRow>
-            {
-              this.props.state.registers.map(r => (
+        <Table padding={'dense'}>
+          <TableHead>
+            <TableRow>
+              {this.props.state.registers.map(r => (
                 <TableCell>{`Reg${r.num}`}</TableCell>
-              ))
-            }
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          <TableRow>
-            {
-              this.props.state.registers.map(r => (
+              ))}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            <TableRow>
+              {this.props.state.registers.map(r => (
                 <TableCell>{r.source ? r.source.getName() : ''}</TableCell>
-              ))
-            }
-          </TableRow>
-          <TableRow>
-            {
-              this.props.state.registers.map(r => (
+              ))}
+            </TableRow>
+            <TableRow>
+              {this.props.state.registers.map(r => (
                 <TableCell>{r.content}</TableCell>
-              ))
-            }
-          </TableRow>
-        </TableBody>
-      </Table>
-    </>);
+              ))}
+            </TableRow>
+          </TableBody>
+        </Table>
+      </>
+    );
   }
 }
 
-const mapStateToProps = (state: TomasuloStatus): Partial<AppProps> =>  {
+const mapStateToProps = (state: TomasuloStatus): Partial<AppProps> => {
   return {
     state,
   };
@@ -163,9 +147,15 @@ const mapStateToProps = (state: TomasuloStatus): Partial<AppProps> =>  {
 
 const mapDispatchToProps = (dispatch: any): Partial<AppProps> => {
   return {
-    import: (s: string) => { dispatch(importInstructions(s)); },
-    reset: () => { dispatch(reset()); },
-    nextStep: () => { dispatch(nextStep()); },
+    import: (s: string) => {
+      dispatch(importInstructions(s));
+    },
+    reset: () => {
+      dispatch(reset());
+    },
+    nextStep: () => {
+      dispatch(nextStep());
+    },
   };
 };
 
