@@ -100,10 +100,10 @@ class TrivialTomasulo extends React.PureComponent<AppProps, never> {
                 <TableCell>{i.busy ? 'Yes' : 'No'}</TableCell>
                 <TableCell>{i.unit ? i.unit.getName() : ''}</TableCell>
                 <TableCell>{i.op ? i.op : ''}</TableCell>
-                <TableCell>{i.Qj === undefined ? i.Vj : ''}</TableCell>
-                <TableCell>{i.Qk === undefined ? i.Vk : ''}</TableCell>
-                <TableCell>{i.Qj ? i.Qj.getName() : ''}</TableCell>
-                <TableCell>{i.Qk ? i.Qk.getName() : ''}</TableCell>
+                <TableCell>{i.Vj === undefined ? i.Qj : ''}</TableCell>
+                <TableCell>{i.Vk === undefined ? i.Qk : ''}</TableCell>
+                <TableCell>{i.Vj ? i.Vj.getName() : ''}</TableCell>
+                <TableCell>{i.Vk ? i.Vk.getName() : ''}</TableCell>
               </TableRow>
             ))
           }
@@ -114,10 +114,10 @@ class TrivialTomasulo extends React.PureComponent<AppProps, never> {
                 <TableCell>{i.busy ? 'Yes' : 'No'}</TableCell>
                 <TableCell>{i.unit ? i.unit.getName() : ''}</TableCell>
                 <TableCell>{i.op ? i.op : ''}</TableCell>
-                <TableCell>{i.Qj === undefined ? i.Vj : ''}</TableCell>
-                <TableCell>{i.Qk === undefined ? i.Vk : ''}</TableCell>
-                <TableCell>{i.Qj ? i.Qj.getName() : ''}</TableCell>
-                <TableCell>{i.Qk ? i.Qk.getName() : ''}</TableCell>
+                <TableCell>{i.Vj === undefined ? i.Qj : ''}</TableCell>
+                <TableCell>{i.Vk === undefined ? i.Qk : ''}</TableCell>
+                <TableCell>{i.Vj ? i.Vj.getName() : ''}</TableCell>
+                <TableCell>{i.Vk ? i.Vk.getName() : ''}</TableCell>
               </TableRow>
             ))
           }

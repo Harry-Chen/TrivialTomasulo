@@ -25,10 +25,10 @@ export class ReservationStation {
 }
 
 export class ArithmeticStation extends ReservationStation {
-  public Vj: number = undefined;
-  public Vk: number = undefined;
-  public Qj: ReservationStation = undefined;
-  public Qk: ReservationStation = undefined;
+  public Qj: number = undefined;
+  public Qk: number = undefined;
+  public Vj: ReservationStation = undefined;
+  public Vk: ReservationStation = undefined;
 }
 
 export class AddSubStation extends ArithmeticStation {

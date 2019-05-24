@@ -52,7 +52,7 @@ function checkStation(rs: ReservationStation, state: TomasuloStatus, dispatch) {
   } else {
     // see if can execution (after a write back)
     if (rs instanceof AddSubStation || rs instanceof MulDivStation) {
-      if (rs.Qj === undefined && rs.Qk === undefined) {
+      if (rs.Vj === undefined && rs.Vk === undefined) {
         // ready to execute, try to find a free function unit
         const units = rs instanceof AddSubStation ?
           state.station.addSubUnit : state.station.mulDivUnit;
