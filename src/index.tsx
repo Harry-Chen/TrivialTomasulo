@@ -22,6 +22,7 @@ loadApp();
 const TEST1 = `
 LD,F1,0x1
 LD,F2,0x2
+ADD,F2,F2,F1
 JUMP,0x1,F1,0xFFFFFFFF
 `;
 

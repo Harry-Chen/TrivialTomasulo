@@ -50,7 +50,6 @@ function checkStation(rs: ReservationStation, state: TomasuloStatus, dispatch) {
       dispatch(writeInstructionResult(rs.instructionNumber, rs.num - 1));
     }
   } else {
-    console.log(rs);
     // see if can execution (after a write back)
     if (rs instanceof AddSubStation || rs instanceof MulDivStation) {
       if (rs.Qj === undefined && rs.Qk === undefined) {
@@ -95,10 +94,13 @@ export function nextStep() {
       checkStation(getState().station.loadBuffer[i], getState(), dispatch);
     }
 
-    checkStation(getState().station.jumpStation, getState(), dispatch);
+    const state = getState();
 
-    // see if we can issue current instruction
-    if (!getState().stall) {
+    checkStation(state.station.jumpStation, getState(), dispatch);
+
+    // see if we can issue current instruction, by using old data before checking jumping station
+    // which is equivalent to insert a delay after a jump calculation
+    if (!state.stall) {
       const nextIns = getState().instructions[getState().pc];
       if (nextIns instanceof Add || nextIns instanceof Sub
         || nextIns instanceof Mul || nextIns instanceof Div) {

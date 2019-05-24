@@ -171,9 +171,12 @@ export default function tomasuloReducer(state: TomasuloStatus = initialState,
       // issue an instruction (when reservation station is free)
       return produce(state, draft => {
         const ins = draft.instructions[action.instructionNumber];
-        ins.issueTime = draft.clock;
-        ins.executionTime = 0;
-        ins.writeTime = 0;
+
+        if (ins.issueTime === 0) {
+          ins.issueTime = draft.clock;
+          ins.executionTime = 0;
+          ins.writeTime = 0;
+        }
 
         if (ins instanceof Add || ins instanceof Sub || ins instanceof Mul || ins instanceof Div) {
           // fill in the ops field, Q can be undefined if no need to wait
@@ -239,7 +242,9 @@ export default function tomasuloReducer(state: TomasuloStatus = initialState,
       // begin execution of an instruction (at first execution cycle)
       return produce(state, draft => {
         const ins = draft.instructions[action.instructionNumber];
-        ins.executionTime = draft.clock;
+        if (ins.executionTime === 0) {
+          ins.executionTime = draft.clock;
+        }
 
         if (ins instanceof Add || ins instanceof Sub) {
           // occupy given function unit
@@ -260,7 +265,30 @@ export default function tomasuloReducer(state: TomasuloStatus = initialState,
             = draft.station.loadUnit[action.funcUnitNumber];
           draft.station.loadBuffer[action.stationNumber].executionTime = draft.clock;
         } else if (ins instanceof Jump) {
-          // do nothing at all
+          // change pc
+          const s = draft.station.jumpStation;
+          if (s.Vj === s.target) {
+            draft.pc += s.offset;
+            draft.stall = false;
+          } else {
+            if (draft.pc < draft.instructions.length - 1) {
+              draft.pc += 1;
+              draft.stall = false;
+            } else {
+              draft.stall = true;
+            }
+          }
+          // clear station
+          s.busy = false;
+          s.target = undefined;
+          s.Vj = undefined;
+          s.offset = undefined;
+          s.instructionNumber = undefined;
+          s.executionTime = 0;
+          // prevent negative numbers
+          if (ins.writeTime === 0) {
+            ins.writeTime = draft.clock;
+          }
         }
       });
 
@@ -282,24 +310,7 @@ export default function tomasuloReducer(state: TomasuloStatus = initialState,
           draft.station.loadUnit[action.funcUnitNumber].busy = false;
           draft.station.loadBuffer[action.stationNumber].unit = undefined;
         } else if (ins instanceof Jump) {
-          // change pc
-          const s = draft.station.jumpStation;
-          if (s.Vj === s.target) {
-            draft.pc += s.offset;
-          } else {
-            if (draft.pc < draft.instructions.length - 1) {
-              draft.pc += 1;
-            } else {
-              draft.stall = true;
-            }
-          }
-          // clear station
-          s.target = undefined;
-          s.Vj = undefined;
-          s.offset = undefined;
-          s.instructionNumber = undefined;
-          // allow instruction fetching
-          draft.stall = false;
+          throw Error('Jump instruction has no finish stage!');
         }
       });
 
@@ -308,7 +319,9 @@ export default function tomasuloReducer(state: TomasuloStatus = initialState,
 
       return produce(state, draft => {
         const ins = draft.instructions[action.instructionNumber];
-        ins.writeTime = draft.clock;
+        if (ins.writeTime === 0) {
+          ins.writeTime = draft.clock;
+        }
 
         if (ins instanceof Add || ins instanceof Sub || ins instanceof Mul || ins instanceof Div) {
 
