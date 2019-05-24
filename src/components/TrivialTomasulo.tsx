@@ -1,6 +1,5 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Dispatch } from 'redux';
 import { TomasuloStatus } from '../redux/tomasuloReducer';
 import { importInstructions, nextStep, reset } from '../redux/action';
 import { AppProps } from '../type/App';

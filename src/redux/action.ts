@@ -56,7 +56,7 @@ function checkStation(rs: ReservationStation, state: TomasuloStatus, dispatch) {
       dispatch(writeInstructionResult(rs.instructionNumber, rs.num - 1));
     }
   } else {
-    // see if can execution (after a write back)
+    // see if can execute (after a write back)
     if (rs instanceof AddSubStation || rs instanceof MulDivStation) {
       if (rs.Vj === undefined && rs.Vk === undefined) {
         // ready to execute, try to find a free function unit
@@ -84,24 +84,36 @@ export function nextStep() {
   return (dispatch, getState: () => TomasuloStatus) => {
     dispatch(clockForward());
 
-    // iterate over all reservation stations (which are prone to change)
-    let len = getState().station.addSubStation.length;
-    for (let i = 0; i < len; ++i) {
-      checkStation(getState().station.addSubStation[i], getState(), dispatch);
+    // iterate over all reservation stations in issue time order
+    // add-sub station
+    let stationMap = {};
+    for (const s of getState().station.addSubStation) {
+      stationMap[s.issueTime] = s;
     }
+    Object.keys(stationMap).sort().forEach(key => {
+      checkStation(stationMap[key], getState(), dispatch);
+    });
 
-    len = getState().station.mulDivStation.length;
-    for (let i = 0; i < len; ++i) {
-      checkStation(getState().station.mulDivStation[i], getState(), dispatch);
+    // mul-div station
+    stationMap = {};
+    for (const s of getState().station.mulDivStation) {
+      stationMap[s.issueTime] = s;
     }
+    Object.keys(stationMap).sort().forEach(key => {
+      checkStation(stationMap[key], getState(), dispatch);
+    });
 
-    len = getState().station.loadBuffer.length;
-    for (let i = 0; i < len; ++i) {
-      checkStation(getState().station.loadBuffer[i], getState(), dispatch);
+    // load buffer
+    stationMap = {};
+    for (const s of getState().station.loadBuffer) {
+      stationMap[s.issueTime] = s;
     }
+    Object.keys(stationMap).sort().forEach(key => {
+      checkStation(stationMap[key], getState(), dispatch);
+    });
 
+    // jump station
     const state = getState();
-
     checkStation(state.station.jumpStation, getState(), dispatch);
 
     // see if we can issue current instruction, by using old data before checking jumping station

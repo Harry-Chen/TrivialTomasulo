@@ -17,6 +17,7 @@ export class ReservationStation {
   public num: number;
   public instructionNumber: number = undefined;
 
+  public issueTime: number = 0;
   public executionTime: number = 0;
 
   public getName(): string {

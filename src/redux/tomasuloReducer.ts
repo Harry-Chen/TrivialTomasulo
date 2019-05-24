@@ -190,6 +190,7 @@ export default function tomasuloReducer(
           }
           // station status
           rs.busy = true;
+          rs.issueTime = draft.clock;
           rs.op = ins.operation;
           rs.instructionNumber = action.instructionNumber;
           // mark the source operands (some may be undefined if not applicable)
@@ -209,6 +210,7 @@ export default function tomasuloReducer(
           const rs = draft.station.loadBuffer[action.stationNumber];
           // station status
           rs.busy = true;
+          rs.issueTime = draft.clock;
           rs.op = ins.operation;
           rs.instructionNumber = action.instructionNumber;
           // source operands
@@ -225,6 +227,7 @@ export default function tomasuloReducer(
           const rs = draft.station.jumpStation;
           // station status
           rs.busy = true;
+          rs.issueTime = draft.clock;
           rs.op = Operation.JUMP;
           rs.instructionNumber = action.instructionNumber;
           // source operands
