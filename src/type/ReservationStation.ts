@@ -11,10 +11,13 @@ export enum FunctionType {
 export class ReservationStation {
   public [immerable] = true;
   public busy: boolean = false;
-  public op: Operation = null;
+  public op: Operation = undefined;
   public type: FunctionType;
-  public unit: FunctionUnit = null;
+  public unit: FunctionUnit = undefined;
   public num: number;
+  public instructionNumber: number = undefined;
+
+  public executionTime: number = 0;
 
   public getName(): string {
     return `${this.type}${this.num}`;
