@@ -52,8 +52,19 @@ export class JumpStation extends ReservationStation {
   public offset: number = undefined;
 }
 
+export enum FunctionUnitType {
+  ADD = 'Add',
+  MULT = 'Mult',
+  LOAD = 'Load',
+}
+
 export class FunctionUnit {
   public [immerable] = true;
   public num: number;
   public busy: boolean = false;
+  public type: FunctionUnitType;
+
+  public getName(): string {
+    return `${this.type}${this.num}`;
+  }
 }

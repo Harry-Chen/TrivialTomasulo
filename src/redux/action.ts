@@ -4,13 +4,13 @@ import { AddSubStation, JumpStation, LoadBuffer, MulDivStation, ReservationStati
 import { Add, Div, Jump, Ld, Mul, Sub } from '../type/Instruction';
 
 export enum ActionType {
-  RESET,
-  IMPORT_INSTRUCTIONS,
-  CLOCK_FORWARD,
-  INSTRUCTION_ISSUE,
-  INSTRUCTION_EXECUTE_BEGIN,
-  INSTRUCTION_EXECUTE_FINISH,
-  INSTRUCTION_WRITE,
+  RESET = 'reset',
+  IMPORT_INSTRUCTIONS = 'import_instruction',
+  CLOCK_FORWARD = 'clock_forward',
+  INSTRUCTION_ISSUE = 'instruction_issue',
+  INSTRUCTION_EXECUTE_BEGIN = 'instruction_execute_begin',
+  INSTRUCTION_EXECUTE_FINISH = 'instruction_execute_finish',
+  INSTRUCTION_WRITE = 'instruction_write',
 }
 
 interface ITomasuloAction extends AnyAction {
@@ -42,12 +42,12 @@ function checkStation(rs: ReservationStation, state: TomasuloStatus, dispatch) {
   // the instruction is already executing
   if (rs.executionTime > 0) {
     const finishClock = rs.executionTime + ins.cost;
-    if (finishClock === state.clock - 1) {
+    if (finishClock - 1 === state.clock) {
       // the last clock, finish execution
-      dispatch(finishExecuteInstruction(rs.instructionNumber, rs.num, rs.unit.num));
-    } else if (rs.executionTime + ins.cost === state.clock) {
+      dispatch(finishExecuteInstruction(rs.instructionNumber, rs.num - 1, rs.unit.num - 1));
+    } else if (finishClock === state.clock) {
       // execution finished, write back
-      dispatch(writeInstructionResult(rs.instructionNumber, rs.num));
+      dispatch(writeInstructionResult(rs.instructionNumber, rs.num - 1));
     }
   } else {
     // see if can execution (after a write back)
@@ -58,17 +58,17 @@ function checkStation(rs: ReservationStation, state: TomasuloStatus, dispatch) {
           state.station.addSubUnit : state.station.mulDivUnit;
         const freeUnits = units.filter(u => !u.busy);
         if (freeUnits.length > 0) {
-          dispatch(beginExecuteInstruction(rs.instructionNumber, rs.num, freeUnits[0].num));
+          dispatch(beginExecuteInstruction(rs.instructionNumber, rs.num - 1, freeUnits[0].num - 1));
         }
       }
     } else if (rs instanceof LoadBuffer) {
       const freeUnits = state.station.loadUnit.filter(u => !u.busy);
       if (freeUnits.length > 0) {
-        dispatch(beginExecuteInstruction(rs.instructionNumber, rs.num, freeUnits[0].num));
+        dispatch(beginExecuteInstruction(rs.instructionNumber, rs.num - 1, freeUnits[0].num - 1));
       }
     } else if (rs instanceof JumpStation) {
       if (rs.Vj !== undefined) {
-        dispatch(beginExecuteInstruction(rs.instructionNumber, rs.num, 0));
+        dispatch(beginExecuteInstruction(rs.instructionNumber, rs.num - 1, 0));
       }
     }
   }
@@ -105,12 +105,12 @@ export function nextStep() {
           getState().station.addSubStation : getState().station.mulDivStation;
         const freeStations = stations.filter(s => !s.busy);
         if (freeStations.length > 0) {
-          dispatch(issueInstruction(getState().pc, freeStations[0].num));
+          dispatch(issueInstruction(getState().pc, freeStations[0].num - 1));
         }
       } else if (nextIns instanceof Ld) {
         const freeStations = getState().station.loadBuffer.filter(s => !s.busy);
         if (freeStations.length > 0) {
-          dispatch(issueInstruction(getState().pc, freeStations[0].num));
+          dispatch(issueInstruction(getState().pc, freeStations[0].num - 1));
         }
       } else if (nextIns instanceof Jump) {
         if (!getState().station.jumpStation.busy) {

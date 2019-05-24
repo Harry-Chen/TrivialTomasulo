@@ -3,6 +3,7 @@ import {
   ArithmeticStation,
   FunctionType,
   FunctionUnit,
+  FunctionUnitType,
   JumpStation,
   LoadBuffer,
   MulDivStation,
@@ -61,21 +62,27 @@ for (let i = 0; i < 3; ++i) {
   const s = new MulDivStation();
   s.type = FunctionType.MULDIV;
   s.num = i + 1;
-  initialStationStatus.mulDivUnit.push(s);
+  initialStationStatus.mulDivStation.push(s);
+
   const l = new LoadBuffer();
   l.type = FunctionType.LOAD;
   l.num = i + 1;
   initialStationStatus.loadBuffer.push(l);
+
   const a = new FunctionUnit();
+  a.type = FunctionUnitType.ADD;
   a.num = i + 1;
   initialStationStatus.addSubUnit.push(a);
 }
 
 for (let i = 0; i < 2; ++i) {
   const s = new FunctionUnit();
+  s.type = FunctionUnitType.MULT;
   s.num = i + 1;
   initialStationStatus.mulDivUnit.push(s);
+
   const l = new FunctionUnit();
+  l.type = FunctionUnitType.LOAD;
   l.num = i + 1;
   initialStationStatus.loadUnit.push(l);
 }
@@ -90,7 +97,7 @@ const initialState: TomasuloStatus = {
 };
 
 for (let i = 0; i < 31; ++i) {
-  initialState.registers.push(new Register());
+  initialState.registers.push(new Register(i));
 }
 
 function broadcast(result: number, rs: ReservationStation, dstReg: number, state: TomasuloStatus) {
@@ -235,14 +242,20 @@ export default function tomasuloReducer(state: TomasuloStatus = initialState,
         if (ins instanceof Add || ins instanceof Sub) {
           // occupy given function unit
           draft.station.addSubUnit[action.funcUnitNumber].busy = true;
+          draft.station.addSubStation[action.stationNumber].unit
+            = draft.station.addSubUnit[action.funcUnitNumber];
           draft.station.addSubStation[action.stationNumber].executionTime = draft.clock;
         } else if (ins instanceof Mul || ins instanceof Div) {
           // occupy given function unit
           draft.station.mulDivUnit[action.funcUnitNumber].busy = true;
+          draft.station.mulDivStation[action.stationNumber].unit
+            = draft.station.mulDivUnit[action.funcUnitNumber];
           draft.station.mulDivStation[action.stationNumber].executionTime = draft.clock;
         } else if (ins instanceof Ld) {
           // occupy given function unit
           draft.station.loadUnit[action.funcUnitNumber].busy = true;
+          draft.station.loadBuffer[action.stationNumber].unit
+            = draft.station.loadUnit[action.funcUnitNumber];
           draft.station.loadBuffer[action.stationNumber].executionTime = draft.clock;
         } else if (ins instanceof Jump) {
           // do nothing at all
@@ -257,12 +270,15 @@ export default function tomasuloReducer(state: TomasuloStatus = initialState,
         if (ins instanceof Add || ins instanceof Sub) {
           // release given function unit
           draft.station.addSubUnit[action.funcUnitNumber].busy = false;
+          draft.station.addSubStation[action.stationNumber].unit = undefined;
         } else if (ins instanceof Mul || ins instanceof Div) {
           // release given function unit
           draft.station.mulDivUnit[action.funcUnitNumber].busy = false;
+          draft.station.mulDivStation[action.stationNumber].unit = undefined;
         } else if (ins instanceof Ld) {
           // release given function unit
           draft.station.loadUnit[action.funcUnitNumber].busy = false;
+          draft.station.loadBuffer[action.stationNumber].unit = undefined;
         } else if (ins instanceof Jump) {
           // change pc
           const s = draft.station.jumpStation;

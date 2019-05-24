@@ -17,6 +17,7 @@ export class Instruction {
   public cost: number;
   public writeTime: number = 0;
   public operation: Operation;
+  public num: number = 0;
 }
 
 export class ThreeRegisterInstruction extends Instruction {

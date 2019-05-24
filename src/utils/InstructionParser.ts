@@ -51,5 +51,10 @@ export function parseInstructions(raw: string): Instruction[] {
     instructions[instructions.length - 1].raw = line;
   }
 
+  let i = 0;
+  for (const ins of instructions) {
+    ins.num = i++;
+  }
+
   return instructions;
 }
