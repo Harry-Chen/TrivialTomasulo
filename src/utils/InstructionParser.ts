@@ -1,4 +1,4 @@
-import { Add, Div, Instruction, Jump, Ld, Mul, Sub } from '../type/Instruction';
+import { Add, Div, Instruction, Je, Jg, Jge, Jl, Jle, Jne, Ld, Mul, Sub } from '../type/Instruction';
 
 function parseRegister(name: string): number {
   return parseInt(name.substr(1), 10);
@@ -25,8 +25,55 @@ export function parseInstructions(raw: string): Instruction[] {
         instructions.push(new Ld(parseImmediate(elements[2]), parseRegister(elements[1])));
         break;
       case 'JUMP':
+        // for compatibility, fallthrough
+      case 'JE':
         instructions.push(
-          new Jump(
+          new Je(
+            parseRegister(elements[2]),
+            parseImmediate(elements[1]),
+            parseImmediate(elements[3]),
+          ),
+        );
+        break;
+      case 'JNE':
+        instructions.push(
+          new Jne(
+            parseRegister(elements[2]),
+            parseImmediate(elements[1]),
+            parseImmediate(elements[3]),
+          ),
+        );
+        break;
+      case 'JG':
+        instructions.push(
+          new Jg(
+            parseRegister(elements[2]),
+            parseImmediate(elements[1]),
+            parseImmediate(elements[3]),
+          ),
+        );
+        break;
+      case 'JGE':
+        instructions.push(
+          new Jge(
+            parseRegister(elements[2]),
+            parseImmediate(elements[1]),
+            parseImmediate(elements[3]),
+          ),
+        );
+        break;
+      case 'JL':
+        instructions.push(
+          new Jl(
+            parseRegister(elements[2]),
+            parseImmediate(elements[1]),
+            parseImmediate(elements[3]),
+          ),
+        );
+        break;
+      case 'JLE':
+        instructions.push(
+          new Jle(
             parseRegister(elements[2]),
             parseImmediate(elements[1]),
             parseImmediate(elements[3]),

@@ -3,6 +3,12 @@ import { immerable } from 'immer';
 export enum Operation {
   LD = 'LD',
   JUMP = 'JUMP',
+  JE = 'JE',
+  JNE = 'JNE',
+  JGE = 'JGE',
+  JG = 'JG',
+  JLE = 'JLE',
+  JL = 'JL',
   ADD = 'ADD',
   SUB = 'SUB',
   MUL = 'MUL',
@@ -30,6 +36,10 @@ export class ThreeRegisterInstruction extends Instruction {
     this.srcReg1 = srcReg1;
     this.srcReg2 = srcReg2;
     this.dstReg = dstReg;
+  }
+
+  public evaluate(a: number, b: number): number {
+    throw Error('Not implemented');
   }
 }
 
@@ -59,24 +69,82 @@ export class Jump extends Instruction {
     this.compareDstIm = compareDstIm;
     this.offset = offset;
   }
+
+  public evaluate(a: number, b: number): boolean {
+    throw Error('Not implemented');
+  }
+}
+
+export class Je extends Jump {
+  public operation: Operation = Operation.JE;
+  public evaluate(a: number, b: number): boolean {
+    return a === b;
+  }
+}
+
+export class Jne extends Jump {
+  public operation: Operation = Operation.JNE;
+  public evaluate(a: number, b: number): boolean {
+    return a !== b;
+  }
+}
+
+export class Jg extends Jump {
+  public operation: Operation = Operation.JG;
+  public evaluate(a: number, b: number): boolean {
+    return a > b;
+  }
+}
+
+export class Jge extends Jump {
+  public operation: Operation = Operation.JGE;
+  public evaluate(a: number, b: number): boolean {
+    return a >= b;
+  }
+}
+
+export class Jl extends Jump {
+  public operation: Operation = Operation.JL;
+  public evaluate(a: number, b: number): boolean {
+    return a < b;
+  }
+}
+
+export class Jle extends Jump {
+  public operation: Operation = Operation.JLE;
+  public evaluate(a: number, b: number): boolean {
+    return a <= b;
+  }
 }
 
 export class Add extends ThreeRegisterInstruction {
   public cost: number = 3;
   public operation: Operation = Operation.ADD;
+  public evaluate(a: number, b: number): number {
+    return (a + b) & 0xFFFFFFFF;
+  }
 }
 
 export class Sub extends ThreeRegisterInstruction {
   public cost: number = 3;
   public operation: Operation = Operation.SUB;
+  public evaluate(a: number, b: number): number {
+    return (a - b) & 0xFFFFFFFF;
+  }
 }
 
 export class Mul extends ThreeRegisterInstruction {
   public cost: number = 12;
   public operation: Operation = Operation.MUL;
+  public evaluate(a: number, b: number): number {
+    return (a * b) & 0xFFFFFFFF;
+  }
 }
 
 export class Div extends ThreeRegisterInstruction {
   public cost: number = 40;
   public operation: Operation = Operation.DIV;
+  public evaluate(a: number, b: number): number {
+    return ~~(a / b);
+  }
 }

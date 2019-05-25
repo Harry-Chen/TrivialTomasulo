@@ -20,10 +20,18 @@ const loadApp = () => {
 loadApp();
 
 const TEST1 = `
-LD,F1,0x1
-LD,F2,0x2
-ADD,F2,F2,F1
-JUMP,0x1,F1,0xFFFFFFFF
+LD,F1,0xC
+LD,F2,0xFFFF3C6F
+LD,F3,0xFFFFFFFA
+LD,F4,0x0
+ADD,F2,F4,F2
+DIV,F4,F2,F3
+MUL,F4,F3,F3
+LD,F5,0xFFFFFF32
+LD,F18,0x1
+SUB,F5,F4,F2
+SUB,F1,F1,F18
+JNE,0x0,F1,0xFFFFFFF9
 `;
 
 store.dispatch(importInstructions(TEST1));

@@ -275,7 +275,7 @@ export default function tomasuloReducer(
         } else if (ins instanceof Jump) {
           // change pc
           const s = draft.station.jumpStation;
-          if (s.Vj === s.target) {
+          if (ins.evaluate(s.Vj, s.target)) {
             draft.pc += s.offset;
             draft.stall = false;
           } else {
@@ -333,17 +333,15 @@ export default function tomasuloReducer(
 
         if (ins instanceof Add || ins instanceof Sub || ins instanceof Mul || ins instanceof Div) {
           let rs: ArithmeticStation;
-          let result = 0;
 
           if (ins instanceof Add || ins instanceof Sub) {
             rs = draft.station.addSubStation[action.stationNumber];
-            result =
-              ins instanceof Add ? (rs.Qj + rs.Qk) & 0xfffffffff : (rs.Qj - rs.Qk) & 0xfffffffff;
           } else {
             rs = draft.station.mulDivStation[action.stationNumber];
-            // black magic to mimic integer division of C
-            result = ins instanceof Mul ? (rs.Qj * rs.Qk) & 0xffffffff : ~~(rs.Qj / rs.Qk);
           }
+
+          // evaluate result
+          const result = ins.evaluate(rs.Qj, rs.Qk);
 
           // clear the state of reservation station
           rs.busy = false;
