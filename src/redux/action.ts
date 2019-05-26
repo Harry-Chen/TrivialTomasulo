@@ -41,21 +41,23 @@ export function importInstructions(instructions: string): TomasuloAction {
   };
 }
 
-function checkStation(rs: ReservationStation, state: TomasuloStatus, dispatch) {
+function checkStation(rs: ReservationStation, state: TomasuloStatus, dispatch,
+                      finish: boolean): boolean {
   if (!rs.busy) return;
   const ins = state.instructions[rs.instructionNumber];
 
   // the instruction is already executing
-  if (rs.executionTime > 0) {
-    const finishClock = rs.executionTime + ins.cost;
+  if (finish && rs.executionTime > 0) {
+    const finishClock = rs.executionTime + rs.cost;
     if (finishClock - 1 === state.clock) {
       // the last clock, finish execution
-      dispatch(finishExecuteInstruction(rs.instructionNumber, rs.num - 1, rs.unit.num - 1));
+      dispatch(finishExecuteInstruction(rs.instructionNumber, rs.num - 1,
+        rs.unit ? rs.unit.num - 1 : 0));
     } else if (finishClock === state.clock) {
       // execution finished, write back
       dispatch(writeInstructionResult(rs.instructionNumber, rs.num - 1));
     }
-  } else {
+  } else if (!finish && rs.executionTime === 0) {
     // see if can execute (after a write back)
     if (rs instanceof AddSubStation || rs instanceof MulDivStation) {
       if (rs.Vj === undefined && rs.Vk === undefined) {
@@ -80,41 +82,49 @@ function checkStation(rs: ReservationStation, state: TomasuloStatus, dispatch) {
   }
 }
 
+function checkAllStations(getState: () => TomasuloStatus, dispatch, finish: boolean) {
+  // iterate over all reservation stations in issue time order
+  // add-sub station
+  let stationMap = {};
+  for (const s of getState().station.addSubStation) {
+    stationMap[s.issueTime] = s;
+  }
+  Object.keys(stationMap).sort().forEach(key => {
+    checkStation(stationMap[key], getState(), dispatch, finish);
+  });
+
+  // mul-div station
+  stationMap = {};
+  for (const s of getState().station.mulDivStation) {
+    stationMap[s.issueTime] = s;
+  }
+  Object.keys(stationMap).sort().forEach(key => {
+    checkStation(stationMap[key], getState(), dispatch, finish);
+  });
+
+  // load buffer
+  stationMap = {};
+  for (const s of getState().station.loadBuffer) {
+    stationMap[s.issueTime] = s;
+  }
+  Object.keys(stationMap).sort().forEach(key => {
+    checkStation(stationMap[key], getState(), dispatch, finish);
+  });
+}
+
 export function nextStep() {
   return (dispatch, getState: () => TomasuloStatus) => {
     dispatch(clockForward());
 
-    // iterate over all reservation stations in issue time order
-    // add-sub station
-    let stationMap = {};
-    for (const s of getState().station.addSubStation) {
-      stationMap[s.issueTime] = s;
-    }
-    Object.keys(stationMap).sort().forEach(key => {
-      checkStation(stationMap[key], getState(), dispatch);
-    });
-
-    // mul-div station
-    stationMap = {};
-    for (const s of getState().station.mulDivStation) {
-      stationMap[s.issueTime] = s;
-    }
-    Object.keys(stationMap).sort().forEach(key => {
-      checkStation(stationMap[key], getState(), dispatch);
-    });
-
-    // load buffer
-    stationMap = {};
-    for (const s of getState().station.loadBuffer) {
-      stationMap[s.issueTime] = s;
-    }
-    Object.keys(stationMap).sort().forEach(key => {
-      checkStation(stationMap[key], getState(), dispatch);
-    });
+    // try to begin execution
+    checkAllStations(getState, dispatch, false);
+    // try to end execution that begins in this clock
+    checkAllStations(getState, dispatch, true);
 
     // jump station
     const state = getState();
-    checkStation(state.station.jumpStation, getState(), dispatch);
+    checkStation(getState().station.jumpStation, getState(), dispatch, false);
+    checkStation(getState().station.jumpStation, getState(), dispatch, true);
 
     // see if we can issue current instruction, by using old data before checking jumping station
     // which is equivalent to insert a delay after a jump calculation

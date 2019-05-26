@@ -35,7 +35,8 @@ class TrivialTomasulo extends React.PureComponent<AppProps, never> {
             {this.props.state.instructions.map(i => (
               <TableRow>
                 <TableCell>{i.raw.replace(/,/g, '\t')}</TableCell>
-                <TableCell>{this.props.state.pc === i.num ? 'Yes' : 'No'}</TableCell>
+                <TableCell>{this.props.state.pc !== i.num ? 'No' :
+                  (this.props.state.stall ? 'Stalled' : 'Yes')}</TableCell>
                 <TableCell>{i.issueTime === 0 ? '' : i.issueTime}</TableCell>
                 <TableCell>{i.executionTime === 0 ? '' : i.executionTime}</TableCell>
                 <TableCell>{i.writeTime === 0 ? '' :
@@ -116,7 +117,7 @@ class TrivialTomasulo extends React.PureComponent<AppProps, never> {
           <TableHead>
             <TableRow>
               {this.props.state.registers.map(r => (
-                <TableCell>{`Reg${r.num}`}</TableCell>
+                <TableCell>{`F${r.num}`}</TableCell>
               ))}
             </TableRow>
           </TableHead>

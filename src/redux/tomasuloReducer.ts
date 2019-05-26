@@ -254,51 +254,38 @@ export default function tomasuloReducer(
         let station: ReservationStation;
         let unit: FunctionUnit;
 
-        if (!(ins instanceof Jump)) {
-          if (ins instanceof Add || ins instanceof Sub) {
-            // occupy given function unit
-            station = draft.station.addSubStation[action.stationNumber];
-            unit = draft.station.addSubUnit[action.funcUnitNumber];
-          } else if (ins instanceof Mul || ins instanceof Div) {
-            // occupy given function unit
-            station = draft.station.mulDivStation[action.stationNumber];
-            unit = draft.station.mulDivUnit[action.funcUnitNumber];
-          } else if (ins instanceof Ld) {
-            // occupy given function unit
-            station = draft.station.loadBuffer[action.stationNumber];
-            unit = draft.station.loadUnit[action.funcUnitNumber];
-          }
+        if (ins instanceof Add || ins instanceof Sub) {
+          // occupy given function unit
+          station = draft.station.addSubStation[action.stationNumber];
+          unit = draft.station.addSubUnit[action.funcUnitNumber];
+        } else if (ins instanceof Mul || ins instanceof Div) {
+          // occupy given function unit
+          station = draft.station.mulDivStation[action.stationNumber];
+          unit = draft.station.mulDivUnit[action.funcUnitNumber];
+        } else if (ins instanceof Ld) {
+          // occupy given function unit
+          station = draft.station.loadBuffer[action.stationNumber];
+          unit = draft.station.loadUnit[action.funcUnitNumber];
+        } else if (ins instanceof Jump) {
+          // jump instructions needs no function unit
+          station = draft.station.jumpStation;
+        }
+
+        if (unit) {
           unit.busy = true;
           station.unit = unit;
-          station.executionTime = draft.clock;
-          station.cost = ins.cost;
-        } else {
-          // change pc
-          const s = draft.station.jumpStation;
-          if (ins.evaluate(s.Vj, s.target)) {
-            draft.pc += s.offset;
-            draft.stall = false;
-          } else {
-            if (draft.pc < draft.instructions.length - 1) {
-              draft.pc += 1;
-              draft.stall = false;
-            } else {
-              draft.stall = true;
-            }
-          }
-          // clear station
-          s.busy = false;
-          s.target = undefined;
-          s.Qj = undefined;
-          s.offset = undefined;
-          s.instructionNumber = undefined;
-          s.executionTime = 0;
-          // prevent negative numbers
-          if (ins.executionTime === 0) {
-            ins.executionTime = draft.clock;
-            ins.writeTime = -1;
+        }
+        station.executionTime = draft.clock;
+        station.cost = ins.cost;
+
+        // handle division by zero
+        if (station instanceof MulDivStation && station.op === Operation.DIV) {
+          if (station.Qj === 0) {
+            station.Qj = 1;
+            station.cost = 1;
           }
         }
+
       });
 
     case ActionType.INSTRUCTION_EXECUTE_FINISH:
@@ -323,7 +310,28 @@ export default function tomasuloReducer(
           draft.station.loadUnit[action.funcUnitNumber].busy = false;
           draft.station.loadBuffer[action.stationNumber].unit = undefined;
         } else if (ins instanceof Jump) {
-          throw Error('Jump instruction has no finish stage!');
+          // change pc if needed
+          const rs = draft.station.jumpStation;
+          if (ins.evaluate(rs.Vj, rs.target)) {
+            draft.pc += rs.offset;
+            draft.stall = false;
+          } else {
+            if (draft.pc < draft.instructions.length - 1) {
+              draft.pc += 1;
+              draft.stall = false;
+            } else {
+              draft.stall = true;
+            }
+          }
+          // end executing, clear station
+          rs.busy = false;
+          rs.target = undefined;
+          rs.Qj = undefined;
+          rs.offset = undefined;
+          rs.instructionNumber = undefined;
+          rs.executionTime = 0;
+          // set a special mark
+          ins.writeTime = -1;
         }
       });
 
