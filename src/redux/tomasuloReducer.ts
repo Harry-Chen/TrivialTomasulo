@@ -96,7 +96,7 @@ const initialState: TomasuloStatus = {
   station: initialStationStatus,
 };
 
-for (let i = 0; i < 31; ++i) {
+for (let i = 0; i < 32; ++i) {
   initialState.registers.push(new Register(i));
 }
 
@@ -110,23 +110,23 @@ function broadcast(result: number, rs: ReservationStation, dstReg: number, state
   }
   // write to reservation stations
   for (const s of state.station.addSubStation) {
-    if (s.Vj && s.Vj.getName() === rs.getName()) {
-      s.Vj = undefined;
-      s.Qj = result;
+    if (s.Qj && s.Qj.getName() === rs.getName()) {
+      s.Qj = undefined;
+      s.Vj = result;
     }
-    if (s.Vk && s.Vk.getName() === rs.getName()) {
-      s.Vk = undefined;
-      s.Qk = result;
+    if (s.Qk && s.Qk.getName() === rs.getName()) {
+      s.Qk = undefined;
+      s.Vk = result;
     }
   }
   for (const s of state.station.mulDivStation) {
-    if (s.Vj && s.Vj.getName() === rs.getName()) {
-      s.Vj = undefined;
-      s.Qj = result;
+    if (s.Qj && s.Qj.getName() === rs.getName()) {
+      s.Qj = undefined;
+      s.Vj = result;
     }
-    if (s.Vk && s.Vk.getName() === rs.getName()) {
-      s.Vk = undefined;
-      s.Qk = result;
+    if (s.Qk && s.Qk.getName() === rs.getName()) {
+      s.Qk = undefined;
+      s.Vk = result;
     }
   }
   const j = state.station.jumpStation;
@@ -199,10 +199,10 @@ export default function tomasuloReducer(
           rs.op = ins.operation;
           rs.instructionNumber = action.instructionNumber;
           // mark the source operands (some may be undefined if not applicable)
-          rs.Vj = draft.registers[ins.srcReg1].source;
-          rs.Qj = draft.registers[ins.srcReg1].content;
-          rs.Vk = draft.registers[ins.srcReg2].source;
-          rs.Qk = draft.registers[ins.srcReg2].content;
+          rs.Qj = draft.registers[ins.srcReg1].source;
+          rs.Vj = draft.registers[ins.srcReg1].content;
+          rs.Qk = draft.registers[ins.srcReg2].source;
+          rs.Vk = draft.registers[ins.srcReg2].content;
           // mark the register to be written
           draft.registers[ins.dstReg].source = rs;
           // move forward
@@ -280,8 +280,8 @@ export default function tomasuloReducer(
 
         // handle division by zero
         if (station instanceof MulDivStation && station.op === Operation.DIV) {
-          if (station.Qj === 0) {
-            station.Qj = 1;
+          if (station.Vk === 0) {
+            station.Vk = 1;
             station.cost = 1;
           }
         }
@@ -323,15 +323,6 @@ export default function tomasuloReducer(
               draft.stall = true;
             }
           }
-          // end executing, clear station
-          rs.busy = false;
-          rs.target = undefined;
-          rs.Qj = undefined;
-          rs.offset = undefined;
-          rs.instructionNumber = undefined;
-          rs.executionTime = 0;
-          // set a special mark
-          ins.writeTime = -1;
         }
       });
 
@@ -354,13 +345,13 @@ export default function tomasuloReducer(
           }
 
           // evaluate result
-          const result = ins.evaluate(rs.Qj, rs.Qk);
+          const result = ins.evaluate(rs.Vj, rs.Vk);
 
           // clear the state of reservation station
           rs.busy = false;
           rs.op = undefined;
-          rs.Qj = undefined;
-          rs.Qk = undefined;
+          rs.Vj = undefined;
+          rs.Vk = undefined;
           rs.instructionNumber = undefined;
           rs.executionTime = 0;
           // do CDB broadcast
@@ -374,7 +365,13 @@ export default function tomasuloReducer(
           rs.executionTime = 0;
           broadcast(ins.srcIm, rs, ins.dstReg, draft);
         } else if (ins instanceof Jump) {
-          throw Error('Jump instruction has no writeback stage!');
+          const rs = draft.station.jumpStation;
+          rs.busy = false;
+          rs.target = undefined;
+          rs.Vj = undefined;
+          rs.offset = undefined;
+          rs.instructionNumber = undefined;
+          rs.executionTime = 0;
         }
       });
 

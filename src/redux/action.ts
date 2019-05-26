@@ -41,48 +41,62 @@ export function importInstructions(instructions: string): TomasuloAction {
   };
 }
 
+enum StationOperation {
+  BEGIN_EXECUTION,
+  FINISH_EXECUTION,
+  WRITE_BACK,
+}
+
 function checkStation(rs: ReservationStation, state: TomasuloStatus, dispatch,
-                      finish: boolean): boolean {
+                      operation: StationOperation): boolean {
   if (!rs.busy) return;
   const ins = state.instructions[rs.instructionNumber];
+  const finishClock = rs.executionTime + rs.cost;
 
-  // the instruction is already executing
-  if (finish && rs.executionTime > 0) {
-    const finishClock = rs.executionTime + rs.cost;
-    if (finishClock - 1 === state.clock) {
-      // the last clock, finish execution
-      dispatch(finishExecuteInstruction(rs.instructionNumber, rs.num - 1,
-        rs.unit ? rs.unit.num - 1 : 0));
-    } else if (finishClock === state.clock) {
-      // execution finished, write back
-      dispatch(writeInstructionResult(rs.instructionNumber, rs.num - 1));
-    }
-  } else if (!finish && rs.executionTime === 0) {
-    // see if can execute (after a write back)
-    if (rs instanceof AddSubStation || rs instanceof MulDivStation) {
-      if (rs.Vj === undefined && rs.Vk === undefined) {
-        // ready to execute, try to find a free function unit
-        const units =
-          rs instanceof AddSubStation ? state.station.addSubUnit : state.station.mulDivUnit;
-        const freeUnits = units.filter(u => !u.busy);
-        if (freeUnits.length > 0) {
-          dispatch(beginExecuteInstruction(rs.instructionNumber, rs.num - 1, freeUnits[0].num - 1));
+  switch (operation) {
+    case StationOperation.BEGIN_EXECUTION:
+      if (rs.executionTime === 0) {
+        if (rs instanceof AddSubStation || rs instanceof MulDivStation) {
+          if (rs.Qj === undefined && rs.Qk === undefined) {
+            // ready to execute, try to find a free function unit
+            const units =
+              rs instanceof AddSubStation ? state.station.addSubUnit : state.station.mulDivUnit;
+            const freeUnits = units.filter(u => !u.busy);
+            if (freeUnits.length > 0) {
+              dispatch(beginExecuteInstruction(rs.instructionNumber,
+                rs.num - 1, freeUnits[0].num - 1));
+            }
+          }
+        } else if (rs instanceof LoadBuffer) {
+          const freeUnits = state.station.loadUnit.filter(u => !u.busy);
+          if (freeUnits.length > 0) {
+            dispatch(beginExecuteInstruction(rs.instructionNumber,
+              rs.num - 1, freeUnits[0].num - 1));
+          }
+        } else if (rs instanceof JumpStation) {
+          if (rs.Qj === undefined) {
+            dispatch(beginExecuteInstruction(rs.instructionNumber, rs.num - 1, 0));
+          }
         }
       }
-    } else if (rs instanceof LoadBuffer) {
-      const freeUnits = state.station.loadUnit.filter(u => !u.busy);
-      if (freeUnits.length > 0) {
-        dispatch(beginExecuteInstruction(rs.instructionNumber, rs.num - 1, freeUnits[0].num - 1));
+      break;
+    case StationOperation.FINISH_EXECUTION:
+      if (rs.executionTime > 0 && finishClock - 1 === state.clock) {
+        // the last clock, finish execution
+        dispatch(finishExecuteInstruction(rs.instructionNumber, rs.num - 1,
+          rs.unit ? rs.unit.num - 1 : 0));
       }
-    } else if (rs instanceof JumpStation) {
-      if (rs.Qj === undefined) {
-        dispatch(beginExecuteInstruction(rs.instructionNumber, rs.num - 1, 0));
+      break;
+    case StationOperation.WRITE_BACK:
+      if (rs.executionTime > 0 && finishClock === state.clock) {
+        // execution finished, write back
+        dispatch(writeInstructionResult(rs.instructionNumber, rs.num - 1));
       }
-    }
+      break;
   }
 }
 
-function checkAllStations(getState: () => TomasuloStatus, dispatch, finish: boolean) {
+function checkAllStations(getState: () => TomasuloStatus, dispatch, op: StationOperation) {
   // iterate over all reservation stations in issue time order
   // add-sub station
   let stationMap = {};
@@ -90,7 +104,7 @@ function checkAllStations(getState: () => TomasuloStatus, dispatch, finish: bool
     stationMap[s.issueTime] = s;
   }
   Object.keys(stationMap).sort().forEach(key => {
-    checkStation(stationMap[key], getState(), dispatch, finish);
+    checkStation(stationMap[key], getState(), dispatch, op);
   });
 
   // mul-div station
@@ -99,7 +113,7 @@ function checkAllStations(getState: () => TomasuloStatus, dispatch, finish: bool
     stationMap[s.issueTime] = s;
   }
   Object.keys(stationMap).sort().forEach(key => {
-    checkStation(stationMap[key], getState(), dispatch, finish);
+    checkStation(stationMap[key], getState(), dispatch, op);
   });
 
   // load buffer
@@ -108,27 +122,30 @@ function checkAllStations(getState: () => TomasuloStatus, dispatch, finish: bool
     stationMap[s.issueTime] = s;
   }
   Object.keys(stationMap).sort().forEach(key => {
-    checkStation(stationMap[key], getState(), dispatch, finish);
+    checkStation(stationMap[key], getState(), dispatch, op);
   });
+
+  // jump station
+  checkStation(getState().station.jumpStation, getState(), dispatch, op);
 }
 
 export function nextStep() {
   return (dispatch, getState: () => TomasuloStatus) => {
     dispatch(clockForward());
 
-    // try to begin execution
-    checkAllStations(getState, dispatch, false);
-    // try to end execution that begins in this clock
-    checkAllStations(getState, dispatch, true);
-
     // jump station
-    const state = getState();
-    checkStation(getState().station.jumpStation, getState(), dispatch, false);
-    checkStation(getState().station.jumpStation, getState(), dispatch, true);
+    const tryIssue = !getState().stall;
 
-    // see if we can issue current instruction, by using old data before checking jumping station
+    // begin execution (first cycle)
+    checkAllStations(getState, dispatch, StationOperation.BEGIN_EXECUTION);
+    // end execution (last cycle)
+    checkAllStations(getState, dispatch, StationOperation.FINISH_EXECUTION);
+    // write back results
+    checkAllStations(getState, dispatch, StationOperation.WRITE_BACK);
+
+    // see if we can issue current instruction, by using old state before checking jumping station
     // which is equivalent to insert a delay after a jump calculation
-    if (!state.stall) {
+    if (tryIssue) {
       const nextIns = getState().instructions[getState().pc];
       if (
         nextIns instanceof Add ||
