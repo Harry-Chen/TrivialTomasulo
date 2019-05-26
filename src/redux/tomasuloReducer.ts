@@ -250,29 +250,29 @@ export default function tomasuloReducer(
       // begin execution of an instruction (at first execution cycle)
       return produce(state, draft => {
         const ins = draft.instructions[action.instructionNumber];
-        if (ins.executionTime === 0) {
-          ins.executionTime = draft.clock;
-        }
 
-        if (ins instanceof Add || ins instanceof Sub) {
-          // occupy given function unit
-          draft.station.addSubUnit[action.funcUnitNumber].busy = true;
-          draft.station.addSubStation[action.stationNumber].unit =
-            draft.station.addSubUnit[action.funcUnitNumber];
-          draft.station.addSubStation[action.stationNumber].executionTime = draft.clock;
-        } else if (ins instanceof Mul || ins instanceof Div) {
-          // occupy given function unit
-          draft.station.mulDivUnit[action.funcUnitNumber].busy = true;
-          draft.station.mulDivStation[action.stationNumber].unit =
-            draft.station.mulDivUnit[action.funcUnitNumber];
-          draft.station.mulDivStation[action.stationNumber].executionTime = draft.clock;
-        } else if (ins instanceof Ld) {
-          // occupy given function unit
-          draft.station.loadUnit[action.funcUnitNumber].busy = true;
-          draft.station.loadBuffer[action.stationNumber].unit =
-            draft.station.loadUnit[action.funcUnitNumber];
-          draft.station.loadBuffer[action.stationNumber].executionTime = draft.clock;
-        } else if (ins instanceof Jump) {
+        let station: ReservationStation;
+        let unit: FunctionUnit;
+
+        if (!(ins instanceof Jump)) {
+          if (ins instanceof Add || ins instanceof Sub) {
+            // occupy given function unit
+            station = draft.station.addSubStation[action.stationNumber];
+            unit = draft.station.addSubUnit[action.funcUnitNumber];
+          } else if (ins instanceof Mul || ins instanceof Div) {
+            // occupy given function unit
+            station = draft.station.mulDivStation[action.stationNumber];
+            unit = draft.station.mulDivUnit[action.funcUnitNumber];
+          } else if (ins instanceof Ld) {
+            // occupy given function unit
+            station = draft.station.loadBuffer[action.stationNumber];
+            unit = draft.station.loadUnit[action.funcUnitNumber];
+          }
+          unit.busy = true;
+          station.unit = unit;
+          station.executionTime = draft.clock;
+          station.cost = ins.cost;
+        } else {
           // change pc
           const s = draft.station.jumpStation;
           if (ins.evaluate(s.Vj, s.target)) {
@@ -294,8 +294,9 @@ export default function tomasuloReducer(
           s.instructionNumber = undefined;
           s.executionTime = 0;
           // prevent negative numbers
-          if (ins.writeTime === 0) {
-            ins.writeTime = draft.clock;
+          if (ins.executionTime === 0) {
+            ins.executionTime = draft.clock;
+            ins.writeTime = -1;
           }
         }
       });
@@ -304,6 +305,10 @@ export default function tomasuloReducer(
       // end execution of an instruction (at last execution cycle)
       return produce(state, draft => {
         const ins = draft.instructions[action.instructionNumber];
+
+        if (ins.executionTime === 0) {
+          ins.executionTime = draft.clock;
+        }
 
         if (ins instanceof Add || ins instanceof Sub) {
           // release given function unit

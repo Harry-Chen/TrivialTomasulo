@@ -25,26 +25,21 @@ class TrivialTomasulo extends React.PureComponent<AppProps, never> {
           <TableHead>
             <TableRow>
               <TableCell>指令</TableCell>
-              <TableCell>当前</TableCell>
-              <TableCell>剩余周期</TableCell>
+              <TableCell>当前指令</TableCell>
               <TableCell>Issue</TableCell>
-              <TableCell>Execution</TableCell>
-              <TableCell>Write</TableCell>
+              <TableCell>Exec Comp</TableCell>
+              <TableCell>Write Result</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {this.props.state.instructions.map(i => (
               <TableRow>
-                <TableCell>{i.raw}</TableCell>
+                <TableCell>{i.raw.replace(/,/g, '\t')}</TableCell>
                 <TableCell>{this.props.state.pc === i.num ? 'Yes' : 'No'}</TableCell>
-                <TableCell>
-                  {i.executionTime > 0 && i.writeTime === 0
-                    ? i.executionTime + i.cost - 1 - this.props.state.clock
-                    : ''}
-                </TableCell>
                 <TableCell>{i.issueTime === 0 ? '' : i.issueTime}</TableCell>
                 <TableCell>{i.executionTime === 0 ? '' : i.executionTime}</TableCell>
-                <TableCell>{i.writeTime === 0 ? '' : i.writeTime}</TableCell>
+                <TableCell>{i.writeTime === 0 ? '' :
+                  i.writeTime === -1 ? 'N/A' : i.writeTime}</TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -55,8 +50,9 @@ class TrivialTomasulo extends React.PureComponent<AppProps, never> {
             <TableRow>
               <TableCell>名称</TableCell>
               <TableCell>Busy</TableCell>
+              <TableCell>剩余周期</TableCell>
               <TableCell>FU</TableCell>
-              <TableCell>Content</TableCell>
+              <TableCell>Immediate</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -64,6 +60,7 @@ class TrivialTomasulo extends React.PureComponent<AppProps, never> {
               <TableRow>
                 <TableCell>{i.getName()}</TableCell>
                 <TableCell>{i.busy ? 'Yes' : 'No'}</TableCell>
+                <TableCell>{i.remainingClock(this.props.state.clock)}</TableCell>
                 <TableCell>{i.unit ? i.unit.getName() : ''}</TableCell>
                 <TableCell>{i.imm}</TableCell>
               </TableRow>
@@ -76,6 +73,7 @@ class TrivialTomasulo extends React.PureComponent<AppProps, never> {
             <TableRow>
               <TableCell>名称</TableCell>
               <TableCell>Busy</TableCell>
+              <TableCell>剩余周期</TableCell>
               <TableCell>FU</TableCell>
               <TableCell>Operation</TableCell>
               <TableCell>Vj</TableCell>
@@ -89,6 +87,7 @@ class TrivialTomasulo extends React.PureComponent<AppProps, never> {
               <TableRow>
                 <TableCell>{i.getName()}</TableCell>
                 <TableCell>{i.busy ? 'Yes' : 'No'}</TableCell>
+                <TableCell>{i.remainingClock(this.props.state.clock)}</TableCell>
                 <TableCell>{i.unit ? i.unit.getName() : ''}</TableCell>
                 <TableCell>{i.op ? i.op : ''}</TableCell>
                 <TableCell>{i.Vj === undefined ? i.Qj : ''}</TableCell>
@@ -101,6 +100,7 @@ class TrivialTomasulo extends React.PureComponent<AppProps, never> {
               <TableRow>
                 <TableCell>{i.getName()}</TableCell>
                 <TableCell>{i.busy ? 'Yes' : 'No'}</TableCell>
+                <TableCell>{i.remainingClock(this.props.state.clock)}</TableCell>
                 <TableCell>{i.unit ? i.unit.getName() : ''}</TableCell>
                 <TableCell>{i.op ? i.op : ''}</TableCell>
                 <TableCell>{i.Vj === undefined ? i.Qj : ''}</TableCell>
@@ -123,7 +123,7 @@ class TrivialTomasulo extends React.PureComponent<AppProps, never> {
           <TableBody>
             <TableRow>
               {this.props.state.registers.map(r => (
-                <TableCell>{r.source ? r.source.getName() : ''}</TableCell>
+                <TableCell>{r.source ? r.source.getName() : r.content}</TableCell>
               ))}
             </TableRow>
             <TableRow>

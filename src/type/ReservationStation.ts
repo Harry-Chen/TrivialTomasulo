@@ -19,9 +19,19 @@ export class ReservationStation {
 
   public issueTime: number = 0;
   public executionTime: number = 0;
+  public cost: number = 0;
 
   public getName(): string {
     return `${this.type}${this.num}`;
+  }
+
+  public remainingClock(clock: number): string {
+    const remain = this.executionTime + this.cost - clock - 1;
+    if (this.executionTime === 0 || remain < 0) {
+      return '';
+    } else {
+      return `${remain}`;
+    }
   }
 }
 
