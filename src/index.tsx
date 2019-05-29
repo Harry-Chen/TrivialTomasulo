@@ -5,6 +5,7 @@ import { createStore, reducer } from './redux/store';
 
 import TrivialTomasulo from './components/TrivialTomasulo';
 import { importInstructions } from './redux/action';
+import { parseInstructions } from './utils/InstructionParser';
 
 const store = createStore(reducer);
 
@@ -19,7 +20,7 @@ const loadApp = () => {
 
 loadApp();
 
-const TEST1 = `
+const SAMPLE = `
 LD,F1,0x2
 LD,F2,0x1
 LD,F3,0xFFFFFFFF
@@ -30,4 +31,4 @@ JUMP,0xFFFFFFFF,F3,0xFFFFFFFD
 MUL,F3,F1,F4
 `;
 
-store.dispatch(importInstructions(TEST1));
+store.dispatch(importInstructions(parseInstructions(SAMPLE)));

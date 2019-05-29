@@ -7,7 +7,7 @@ import {
   MulDivStation,
   ReservationStation,
 } from '../type/ReservationStation';
-import { Add, Div, Jump, Ld, Mul, Sub } from '../type/Instruction';
+import { Add, Div, Instruction, Jump, Ld, Mul, Sub } from '../type/Instruction';
 
 export enum ActionType {
   RESET = 'reset',
@@ -17,10 +17,13 @@ export enum ActionType {
   INSTRUCTION_EXECUTE_BEGIN = 'instruction_execute_begin',
   INSTRUCTION_EXECUTE_FINISH = 'instruction_execute_finish',
   INSTRUCTION_WRITE = 'instruction_write',
+  TOGGLE_IMPORT_DIALOG = 'toggle_import_dialog',
+  TOGGLE_STEP_DIALOG = 'toggle_step_dialog',
 }
 
 interface ITomasuloAction extends AnyAction {
-  instructions?: string;
+  dialogOpen ?: boolean;
+  instructions?: Instruction[];
   instructionNumber?: number;
   stationNumber?: number;
   funcUnitNumber?: number;
@@ -28,13 +31,27 @@ interface ITomasuloAction extends AnyAction {
 
 export type TomasuloAction = ITomasuloAction;
 
+export function toggleImportDialog(dialogOpen: boolean): TomasuloAction {
+  return {
+    dialogOpen,
+    type: ActionType.TOGGLE_IMPORT_DIALOG,
+  };
+}
+
+export function toggleStepDialog(dialogOpen: boolean): TomasuloAction {
+  return {
+    dialogOpen,
+    type: ActionType.TOGGLE_STEP_DIALOG,
+  };
+}
+
 export function reset(): TomasuloAction {
   return {
     type: ActionType.RESET,
   };
 }
 
-export function importInstructions(instructions: string): TomasuloAction {
+export function importInstructions(instructions: Instruction[]): TomasuloAction {
   return {
     instructions,
     type: ActionType.IMPORT_INSTRUCTIONS,

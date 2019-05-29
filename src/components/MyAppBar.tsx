@@ -17,7 +17,7 @@ import UndoIcon from '@material-ui/icons/Undo';
 import styles from '../styles.css';
 import { TomasuloStatus } from '../redux/tomasuloReducer';
 import { MyAppBarProps } from '../type/App';
-import { nextStep, reset } from '../redux/action';
+import { nextStep, reset, toggleImportDialog, toggleStepDialog } from '../redux/action';
 import { connect } from 'react-redux';
 
 class MyAppBar extends React.PureComponent<MyAppBarProps, {}> {
@@ -28,7 +28,11 @@ class MyAppBar extends React.PureComponent<MyAppBarProps, {}> {
         <AppBar position="static">
           <Toolbar>
             <Tooltip title="Import">
-            <IconButton className={styles.appbar_menu} color="inherit" aria-label="Menu">
+            <IconButton
+              className={styles.appbar_menu}
+              color="inherit"
+              onClick={this.props.import}
+            >
               <CloucUploadIcon />
             </IconButton>
             </Tooltip>
@@ -42,7 +46,7 @@ class MyAppBar extends React.PureComponent<MyAppBarProps, {}> {
             <IconButton
               className={styles.appbar_menu}
               color="inherit"
-              onClick={() => this.props.step(1)}
+              onClick={this.props.step}
             >
               <PlayArrowIcon/>
             </IconButton>
@@ -51,7 +55,7 @@ class MyAppBar extends React.PureComponent<MyAppBarProps, {}> {
             <IconButton
               className={styles.appbar_menu}
               color="inherit"
-              onClick={() => this.props.step(1)}
+              onClick={this.props.multipleStep}
             >
               <FastForwardIcon/>
             </IconButton>
@@ -109,8 +113,11 @@ const mapStateToProps = (state: TomasuloStatus): Partial<MyAppBarProps> => {
 
 const mapDispatchToProps = (dispatch: any): Partial<MyAppBarProps> => {
   return {
-    step: (step) => {
-      for (let i = 0; i < step; ++i) dispatch(nextStep());
+    step: () => {
+      dispatch(nextStep());
+    },
+    multipleStep: () => {
+      dispatch(toggleStepDialog(true));
     },
     run: () => {
 
@@ -123,6 +130,9 @@ const mapDispatchToProps = (dispatch: any): Partial<MyAppBarProps> => {
     },
     reset: () => {
       dispatch(reset());
+    },
+    import: () => {
+      dispatch(toggleImportDialog(true));
     },
   };
 };

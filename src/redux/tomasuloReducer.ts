@@ -35,6 +35,8 @@ interface ITomasuloStatus {
   instructions: Instruction[];
   registers: Register[];
   station: ReservationStationStatus;
+  importDialogOpen: boolean;
+  stepDialogOpen: boolean;
 }
 
 export type TomasuloStatus = ITomasuloStatus;
@@ -94,6 +96,8 @@ const initialState: TomasuloStatus = {
   instructions: [],
   registers: [],
   station: initialStationStatus,
+  importDialogOpen: false,
+  stepDialogOpen: false,
 };
 
 for (let i = 0; i < 32; ++i) {
@@ -142,6 +146,21 @@ export default function tomasuloReducer(
   action: TomasuloAction,
 ): TomasuloStatus {
   switch (action.type) {
+
+    case ActionType.TOGGLE_IMPORT_DIALOG:
+      // open or close import dialog
+      return {
+        ...state,
+        importDialogOpen: action.dialogOpen,
+      };
+
+    case ActionType.TOGGLE_STEP_DIALOG:
+      // open or close step dialog
+      return {
+        ...state,
+        stepDialogOpen: action.dialogOpen,
+      };
+
     case ActionType.RESET:
       // reset to initial state with imported instructions
       return produce(state, draft => {
@@ -165,7 +184,7 @@ export default function tomasuloReducer(
       return produce(state, draft => {
         return {
           ...initialState,
-          instructions: parseInstructions(action.instructions),
+          instructions: action.instructions,
         };
       });
 
