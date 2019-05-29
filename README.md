@@ -2,6 +2,8 @@
 
 TrivialTomasulo 是使用 TypeScript 开发的 Tomasulo 算法模拟器。
 
+可在 [这里](https://tomasulo.harrychen.xyz) 访问部署在 GitHub Pages 上的 Demo，但其未必是最新的。
+
 ## 模拟环境
 
 它支持由下面语法定义的 NEL 语言：
