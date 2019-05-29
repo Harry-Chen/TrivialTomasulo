@@ -37,6 +37,7 @@ interface ITomasuloStatus {
   station: ReservationStationStatus;
   importDialogOpen: boolean;
   stepDialogOpen: boolean;
+  infoDialogOpen: boolean;
 }
 
 export type TomasuloStatus = ITomasuloStatus;
@@ -99,6 +100,7 @@ const initialState: TomasuloStatus = {
   station: initialStationStatus,
   importDialogOpen: false,
   stepDialogOpen: false,
+  infoDialogOpen: false,
 };
 
 for (let i = 0; i < 32; ++i) {
@@ -160,6 +162,13 @@ export default function tomasuloReducer(
       return {
         ...state,
         stepDialogOpen: action.dialogOpen,
+      };
+
+    case ActionType.TOGGLE_INFO_DIALOG:
+      // open or close info dialog
+      return {
+        ...state,
+        infoDialogOpen: action.dialogOpen,
       };
 
     case ActionType.RESET:

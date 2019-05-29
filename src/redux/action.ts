@@ -13,6 +13,7 @@ export enum ActionType {
   INSTRUCTION_WRITE = 'instruction_write',
   TOGGLE_IMPORT_DIALOG = 'toggle_import_dialog',
   TOGGLE_STEP_DIALOG = 'toggle_step_dialog',
+  TOGGLE_INFO_DIALOG = 'toggle_info_dialog',
 }
 
 interface ITomasuloAction extends AnyAction {
@@ -36,6 +37,13 @@ export function toggleStepDialog(dialogOpen: boolean): TomasuloAction {
   return {
     dialogOpen,
     type: ActionType.TOGGLE_STEP_DIALOG,
+  };
+}
+
+export function toggleInfoDialog(dialogOpen: boolean): TomasuloAction {
+  return {
+    dialogOpen,
+    type: ActionType.TOGGLE_INFO_DIALOG,
   };
 }
 

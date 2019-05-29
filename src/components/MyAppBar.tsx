@@ -14,12 +14,13 @@ import SkipNextIcon from '@material-ui/icons/SkipNext';
 import FastForwardIcon from '@material-ui/icons/FastForward';
 import PauseIcon from '@material-ui/icons/Pause';
 import UndoIcon from '@material-ui/icons/Undo';
+import InfoIcon from '@material-ui/icons/Info';
 
 import styles from '../styles.css';
 
 import { TomasuloStatus } from '../redux/tomasuloReducer';
 import { MyAppBarProps } from '../type/App';
-import { nextStep, reset, runToEnd, toggleImportDialog, toggleStepDialog } from '../redux/action';
+import { nextStep, reset, runToEnd, toggleImportDialog, toggleInfoDialog, toggleStepDialog } from '../redux/action';
 import { connect } from 'react-redux';
 import { checkEnd } from '../utils/StatusChecker';
 
@@ -100,6 +101,15 @@ class MyAppBar extends React.PureComponent<MyAppBarProps, {}> {
                 <UndoIcon/>
               </IconButton>
             </Tooltip>
+            <Tooltip title="Info">
+              <IconButton
+                className={styles.appbar_menu}
+                color="inherit"
+                onClick={this.props.info}
+              >
+                <InfoIcon/>
+              </IconButton>
+            </Tooltip>
           </Toolbar>
         </AppBar>
       </div>
@@ -149,6 +159,9 @@ const mapDispatchToProps = (dispatch: any): Partial<MyAppBarProps> => {
     import: () => {
       dispatch(toggleImportDialog(true));
     },
+    info: () => {
+      dispatch(toggleInfoDialog(true));
+    }
   };
 };
 

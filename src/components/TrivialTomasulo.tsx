@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { TomasuloStatus } from '../redux/tomasuloReducer';
-import { importInstructions, nextStep, toggleImportDialog, toggleStepDialog } from '../redux/action';
+import { importInstructions, nextStep, toggleImportDialog, toggleInfoDialog, toggleStepDialog } from '../redux/action';
 import { AppProps } from '../type/App';
 
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -101,6 +101,23 @@ class TrivialTomasulo extends React.PureComponent<AppProps, typeof initialState>
           }}
           secondButton={'Cancel'}
           secondButtonOnClick={this.props.cancelStep}
+        />
+        <CommonDialog
+          open={this.props.state.infoDialogOpen}
+          title={'About TrivialTomasulo'}
+          content={(
+            <>
+              <p>
+                Author: Harry Chen <br />
+                Version: 1.0 <br />
+                TrivialTomasulo is a simulator of Tomasulo algorithm written in TypeScript. <br/>
+                You can refer to <a href={'https://github.com/Harry-Chen/Trivia lTomasulo'}>GitHub</a> for more
+                information (in Chinese). <br/>
+              </p>
+            </>
+          )}
+          firstButton={'OK'}
+          firstButtonOnClick={this.props.cancelInfo}
         />
         <div className={styles.pane_content}>
           <MyAppBar/>
@@ -295,6 +312,9 @@ const mapDispatchToProps = (dispatch: any): Partial<AppProps> => {
     },
     cancelStep: () => {
       dispatch(toggleStepDialog(false));
+    },
+    cancelInfo: () => {
+      dispatch(toggleInfoDialog(false));
     },
   };
 };

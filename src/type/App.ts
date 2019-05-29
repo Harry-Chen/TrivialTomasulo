@@ -12,6 +12,7 @@ interface IAppProps extends IDispatchableComponentProps {
   step: (s: string) => any;
   cancelImport: () => any;
   cancelStep: () => any;
+  cancelInfo: () => any;
 }
 
 export type AppProps = IAppProps;
@@ -27,6 +28,7 @@ interface IMyAppBarProps extends IDispatchableComponentProps {
   toEnd: () => any;
   reset: () => any;
   import: () => any;
+  info: () => any;
 }
 
 export type MyAppBarProps = IMyAppBarProps;
