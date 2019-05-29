@@ -14,9 +14,9 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TextField from '@material-ui/core/TextField';
 
-import MyAppBar from './MyAppBar';
-
 import styles from '../styles.css';
+
+import MyAppBar from './MyAppBar';
 import CommonDialog from './CommonDialog';
 import { Instruction } from '../type/Instruction';
 import { parseInstructions } from '../utils/InstructionParser';
@@ -76,7 +76,7 @@ class TrivialTomasulo extends React.PureComponent<AppProps, typeof initialState>
           content={(
             <>
               <p>
-                If you specify a large number, the simulator might not response in a while. <br />
+                If you specify a large number, the simulator might not response in a while. <br/>
                 The dialog will close after steps of given number are simulated.
               </p>
               <TextField

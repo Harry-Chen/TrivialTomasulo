@@ -19,6 +19,7 @@ export type AppProps = IAppProps;
 interface IMyAppBarProps extends IDispatchableComponentProps {
   clock: number;
   stall: boolean;
+  finished: boolean;
   step: () => any;
   multipleStep: () => any;
   run: () => any;

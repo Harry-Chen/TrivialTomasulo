@@ -14,7 +14,6 @@ import { Add, Div, Instruction, Jump, Ld, Mul, Operation, Sub } from '../type/In
 import { Register } from '../type/Register';
 
 import produce from 'immer';
-import { parseInstructions } from '../utils/InstructionParser';
 
 interface IReservationStationStatus {
   addSubStation: AddSubStation[];
@@ -32,6 +31,7 @@ interface ITomasuloStatus {
   clock: number;
   pc: number;
   stall: boolean;
+  fetchEnd: boolean;
   instructions: Instruction[];
   registers: Register[];
   station: ReservationStationStatus;
@@ -93,6 +93,7 @@ const initialState: TomasuloStatus = {
   clock: 0,
   pc: 0,
   stall: false,
+  fetchEnd: false,
   instructions: [],
   registers: [],
   station: initialStationStatus,
@@ -228,7 +229,7 @@ export default function tomasuloReducer(
           if (draft.pc < draft.instructions.length - 1) {
             draft.pc += 1;
           } else {
-            draft.stall = true;
+            draft.fetchEnd = true;
           }
         } else if (ins instanceof Ld) {
           const rs = draft.station.loadBuffer[action.stationNumber];
@@ -245,7 +246,7 @@ export default function tomasuloReducer(
           if (draft.pc < draft.instructions.length - 1) {
             draft.pc += 1;
           } else {
-            draft.stall = true;
+            draft.fetchEnd = true;
           }
         } else if (ins instanceof Jump) {
           const rs = draft.station.jumpStation;
@@ -331,15 +332,15 @@ export default function tomasuloReducer(
         } else if (ins instanceof Jump) {
           // change pc if needed
           const rs = draft.station.jumpStation;
+          draft.stall = false;
+
           if (ins.evaluate(rs.Vj, rs.target)) {
             draft.pc += rs.offset;
-            draft.stall = false;
           } else {
             if (draft.pc < draft.instructions.length - 1) {
               draft.pc += 1;
-              draft.stall = false;
             } else {
-              draft.stall = true;
+              draft.fetchEnd = true;
             }
           }
         }
