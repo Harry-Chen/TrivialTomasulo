@@ -1,7 +1,13 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { TomasuloStatus } from '../redux/tomasuloReducer';
-import { importInstructions, nextStep, toggleImportDialog, toggleInfoDialog, toggleStepDialog } from '../redux/action';
+import {
+  importInstructions,
+  nextStep,
+  toggleImportDialog,
+  toggleInfoDialog,
+  toggleStepDialog,
+} from '../redux/action';
 import { AppProps } from '../type/App';
 
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -27,7 +33,6 @@ const initialState = {
 };
 
 class TrivialTomasulo extends React.PureComponent<AppProps, typeof initialState> {
-
   constructor(props) {
     super(props);
     this.state = initialState;
@@ -36,14 +41,14 @@ class TrivialTomasulo extends React.PureComponent<AppProps, typeof initialState>
   public render() {
     return (
       <>
-        <CssBaseline/>
+        <CssBaseline />
         <CommonDialog
           open={this.props.state.importDialogOpen}
           title={'Import Instructions'}
-          content={(
+          content={
             <>
               <p>
-                Please input NEL instructions below. <br/>
+                Please input NEL instructions below. <br />
                 The dialog will close only if your input is valid.
               </p>
               <TextField
@@ -62,7 +67,7 @@ class TrivialTomasulo extends React.PureComponent<AppProps, typeof initialState>
                 }}
               />
             </>
-          )}
+          }
           firstButton={'Import'}
           firstButtonOnClick={() => {
             this.props.import(this.state.instruction);
@@ -73,10 +78,10 @@ class TrivialTomasulo extends React.PureComponent<AppProps, typeof initialState>
         <CommonDialog
           open={this.props.state.stepDialogOpen}
           title={'Run Multiple Steps'}
-          content={(
+          content={
             <>
               <p>
-                If you specify a large number, the simulator might not response in a while. <br/>
+                If you specify a large number, the simulator might not response in a while. <br />
                 The dialog will close after steps of given number are simulated.
               </p>
               <TextField
@@ -94,7 +99,7 @@ class TrivialTomasulo extends React.PureComponent<AppProps, typeof initialState>
                 }}
               />
             </>
-          )}
+          }
           firstButton={'Run'}
           firstButtonOnClick={() => {
             this.props.step(this.state.step);
@@ -105,24 +110,24 @@ class TrivialTomasulo extends React.PureComponent<AppProps, typeof initialState>
         <CommonDialog
           open={this.props.state.infoDialogOpen}
           title={'About TrivialTomasulo'}
-          content={(
+          content={
             <>
               <p>
                 Author: Harry Chen <br />
                 Version: 1.0 <br />
-                TrivialTomasulo is a simulator of Tomasulo algorithm written in TypeScript. <br/>
-                You can refer to <a href={'https://github.com/Harry-Chen/Trivia lTomasulo'}>GitHub</a> for more
-                information (in Chinese). <br/>
+                TrivialTomasulo is a simulator of Tomasulo algorithm written in TypeScript. <br />
+                You can refer to{' '}
+                <a href={'https://github.com/Harry-Chen/Trivia lTomasulo'}>GitHub</a> for more
+                information (in Chinese). <br />
               </p>
             </>
-          )}
+          }
           firstButton={'OK'}
           firstButtonOnClick={this.props.cancelInfo}
         />
         <div className={styles.pane_content}>
-          <MyAppBar/>
+          <MyAppBar />
           <div className={styles.pane_upper}>
-
             <div className={styles.pane_upper_left}>
               <div className={styles.table_title}>
                 <Typography variant="h6" id="tableTitle">
@@ -230,7 +235,6 @@ class TrivialTomasulo extends React.PureComponent<AppProps, typeof initialState>
                 </Table>
               </Paper>
             </div>
-
           </div>
 
           <div className={styles.pane_lower}>
@@ -243,7 +247,7 @@ class TrivialTomasulo extends React.PureComponent<AppProps, typeof initialState>
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell/>
+                    <TableCell />
                     {this.props.state.registers.map(r => (
                       <TableCell>{`F${r.num}`}</TableCell>
                     ))}
@@ -270,7 +274,6 @@ class TrivialTomasulo extends React.PureComponent<AppProps, typeof initialState>
               </Table>
             </Paper>
           </div>
-
         </div>
       </>
     );
@@ -296,7 +299,6 @@ const mapDispatchToProps = (dispatch: any): Partial<AppProps> => {
         dispatch(toggleImportDialog(false));
         dispatch(importInstructions(ins));
       }
-
     },
     step: (s: string) => {
       const steps = parseInt(s, 10);

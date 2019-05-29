@@ -20,12 +20,18 @@ import styles from '../styles.css';
 
 import { TomasuloStatus } from '../redux/tomasuloReducer';
 import { MyAppBarProps } from '../type/App';
-import { nextStep, reset, runToEnd, toggleImportDialog, toggleInfoDialog, toggleStepDialog } from '../redux/action';
+import {
+  nextStep,
+  reset,
+  runToEnd,
+  toggleImportDialog,
+  toggleInfoDialog,
+  toggleStepDialog,
+} from '../redux/action';
 import { connect } from 'react-redux';
 import { checkEnd } from '../utils/StatusChecker';
 
 class MyAppBar extends React.PureComponent<MyAppBarProps, {}> {
-
   public render() {
     return (
       <div className={styles.appbar}>
@@ -37,23 +43,19 @@ class MyAppBar extends React.PureComponent<MyAppBarProps, {}> {
                 color="inherit"
                 onClick={this.props.import}
               >
-                <CloudUploadIcon/>
+                <CloudUploadIcon />
               </IconButton>
             </Tooltip>
             <Typography variant="h6" className={styles.appbar_title}>
               TrivialTomasulo Simulator
             </Typography>
             <IconButton className={styles.appbar_menu} color="inherit" aria-label="Step">
-              {this.props.finished ? <TimerOffIcon/> : <AccessTimeIcon/>}
+              {this.props.finished ? <TimerOffIcon /> : <AccessTimeIcon />}
               {this.props.clock}
             </IconButton>
             <Tooltip title="Step">
-              <IconButton
-                className={styles.appbar_menu}
-                color="inherit"
-                onClick={this.props.step}
-              >
-                <PlayArrowIcon/>
+              <IconButton className={styles.appbar_menu} color="inherit" onClick={this.props.step}>
+                <PlayArrowIcon />
               </IconButton>
             </Tooltip>
             <Tooltip title="Multiple Steps">
@@ -62,52 +64,32 @@ class MyAppBar extends React.PureComponent<MyAppBarProps, {}> {
                 color="inherit"
                 onClick={this.props.multipleStep}
               >
-                <FastForwardIcon/>
+                <FastForwardIcon />
               </IconButton>
             </Tooltip>
             <Tooltip title="Run">
-              <IconButton
-                className={styles.appbar_menu}
-                color="inherit"
-                onClick={this.props.run}
-              >
-                <SlowMotionVideoIcon/>
+              <IconButton className={styles.appbar_menu} color="inherit" onClick={this.props.run}>
+                <SlowMotionVideoIcon />
               </IconButton>
             </Tooltip>
             <Tooltip title="Stop">
-              <IconButton
-                className={styles.appbar_menu}
-                color="inherit"
-                onClick={this.props.stop}
-              >
-                <PauseIcon/>
+              <IconButton className={styles.appbar_menu} color="inherit" onClick={this.props.stop}>
+                <PauseIcon />
               </IconButton>
             </Tooltip>
             <Tooltip title="Run to End">
-              <IconButton
-                className={styles.appbar_menu}
-                color="inherit"
-                onClick={this.props.toEnd}
-              >
-                <SkipNextIcon/>
+              <IconButton className={styles.appbar_menu} color="inherit" onClick={this.props.toEnd}>
+                <SkipNextIcon />
               </IconButton>
             </Tooltip>
             <Tooltip title="Reset">
-              <IconButton
-                className={styles.appbar_menu}
-                color="inherit"
-                onClick={this.props.reset}
-              >
-                <UndoIcon/>
+              <IconButton className={styles.appbar_menu} color="inherit" onClick={this.props.reset}>
+                <UndoIcon />
               </IconButton>
             </Tooltip>
             <Tooltip title="Info">
-              <IconButton
-                className={styles.appbar_menu}
-                color="inherit"
-                onClick={this.props.info}
-              >
-                <InfoIcon/>
+              <IconButton className={styles.appbar_menu} color="inherit" onClick={this.props.info}>
+                <InfoIcon />
               </IconButton>
             </Tooltip>
           </Toolbar>
@@ -115,7 +97,6 @@ class MyAppBar extends React.PureComponent<MyAppBarProps, {}> {
       </div>
     );
   }
-
 }
 
 const mapStateToProps = (state: TomasuloStatus): Partial<MyAppBarProps> => {
@@ -127,7 +108,6 @@ const mapStateToProps = (state: TomasuloStatus): Partial<MyAppBarProps> => {
 };
 
 const mapDispatchToProps = (dispatch: any): Partial<MyAppBarProps> => {
-
   let intervalId: number;
 
   return {
@@ -139,9 +119,9 @@ const mapDispatchToProps = (dispatch: any): Partial<MyAppBarProps> => {
     },
     run: () => {
       if (intervalId === undefined) {
-        intervalId = setInterval(() => {
+        intervalId = (setInterval(() => {
           dispatch(nextStep());
-        }, 200) as unknown as number;
+        }, 200) as unknown) as number;
       }
     },
     stop: () => {
@@ -161,7 +141,7 @@ const mapDispatchToProps = (dispatch: any): Partial<MyAppBarProps> => {
     },
     info: () => {
       dispatch(toggleInfoDialog(true));
-    }
+    },
   };
 };
 

@@ -121,7 +121,7 @@ export class Add extends ThreeRegisterInstruction {
   public cost: number = 3;
   public operation: Operation = Operation.ADD;
   public evaluate(a: number, b: number): number {
-    return (a + b) & 0xFFFFFFFF;
+    return (a + b) & 0xffffffff;
   }
 }
 
@@ -129,7 +129,7 @@ export class Sub extends ThreeRegisterInstruction {
   public cost: number = 3;
   public operation: Operation = Operation.SUB;
   public evaluate(a: number, b: number): number {
-    return (a - b) & 0xFFFFFFFF;
+    return (a - b) & 0xffffffff;
   }
 }
 
@@ -137,7 +137,7 @@ export class Mul extends ThreeRegisterInstruction {
   public cost: number = 12;
   public operation: Operation = Operation.MUL;
   public evaluate(a: number, b: number): number {
-    return (a * b) & 0xFFFFFFFF;
+    return (a * b) & 0xffffffff;
   }
 }
 

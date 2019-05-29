@@ -73,7 +73,6 @@ export function importInstructions(instructions: Instruction[]): TomasuloAction 
 
 export function nextStep() {
   return (dispatch, getState: () => TomasuloStatus) => {
-
     // refuse to run any further steps if execution has ended
     if (checkEnd(getState())) return;
 
@@ -161,8 +160,10 @@ export function finishExecuteInstruction(
   };
 }
 
-export function writeInstructionResult(instructionNumber: number,
-                                       stationNumber: number): TomasuloAction {
+export function writeInstructionResult(
+  instructionNumber: number,
+  stationNumber: number,
+): TomasuloAction {
   return {
     instructionNumber,
     stationNumber,

@@ -1,4 +1,17 @@
-import { Add, Div, Instruction, Je, Jg, Jge, Jl, Jle, Jne, Ld, Mul, Sub } from '../type/Instruction';
+import {
+  Add,
+  Div,
+  Instruction,
+  Je,
+  Jg,
+  Jge,
+  Jl,
+  Jle,
+  Jne,
+  Ld,
+  Mul,
+  Sub,
+} from '../type/Instruction';
 
 function parseRegister(name: string): number {
   return parseInt(name.substr(1), 10);
@@ -25,7 +38,7 @@ export function parseInstructions(raw: string): Instruction[] {
         instructions.push(new Ld(parseImmediate(elements[2]), parseRegister(elements[1])));
         break;
       case 'JUMP':
-        // for compatibility, fallthrough
+      // for compatibility, fallthrough
       case 'JE':
         instructions.push(
           new Je(

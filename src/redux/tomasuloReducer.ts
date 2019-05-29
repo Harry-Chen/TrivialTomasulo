@@ -149,7 +149,6 @@ export default function tomasuloReducer(
   action: TomasuloAction,
 ): TomasuloStatus {
   switch (action.type) {
-
     case ActionType.TOGGLE_IMPORT_DIALOG:
       // open or close import dialog
       return {
@@ -314,7 +313,6 @@ export default function tomasuloReducer(
             station.cost = 1;
           }
         }
-
       });
 
     case ActionType.INSTRUCTION_EXECUTE_FINISH:
