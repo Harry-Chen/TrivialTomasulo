@@ -1,6 +1,6 @@
 # TrivialTomasulo
 
-TrivialTomasulo 是使用 TypeScript 开发的 Tomasulo 算法模拟器。
+TrivialTomasulo 是使用 TypeScript 基于 React 与 Material-UI 框架开发的 Tomasulo 算法模拟器，是清华大学《计算机系统结构》课程的项目之一。本项目以 MIT 协议开放源代码。
 
 可在 [这里](https://tomasulo.harrychen.xyz) 访问部署在 GitHub Pages 上的 Demo，但其未必是最新的。
 
@@ -58,3 +58,4 @@ yarn build
 ```
 
 即可在 `dist` 目录中找到生成的文件，打开 `index.html` 即可执行本程序。
+
