@@ -114,7 +114,7 @@ class TrivialTomasulo extends React.PureComponent<AppProps, typeof initialState>
             <>
               <p>
                 Author: Harry Chen <br />
-                Version: 1.0 <br />
+                Version: 1.1 <br />
                 TrivialTomasulo is a simulator of Tomasulo algorithm written in TypeScript. <br />
                 You can refer to{' '}
                 <a href={'https://github.com/Harry-Chen/TrivialTomasulo'}>GitHub</a> for more
