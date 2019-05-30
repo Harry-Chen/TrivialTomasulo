@@ -23,10 +23,20 @@ Program  := InstList
 InstList := Inst
 InstList := Inst '\n' InstList
 Inst     := OPR ',' REGISTER ',' REGISTER ',' REGISTER
+Inst     := "MOVE" ',' REGISTER ',' REGISTER
 Inst     := "LD" ',' REGISTER ',' INTEGER
-Inst     := "JUMP” ',' INTEGER ',' REGISTER ',' INTEGER
+Inst     := Jump ',' INTEGER ',' REGISTER ',' INTEGER
 OPR      := "ADD" | "MUL" | "SUB" | "DIV"
+Jump     := "JUMP" | "JE" | "JNE" | "JG" | "JGE" | "JL" | "JLE"
 ```
+
+各条指令的语义与字面相同，其中有写入的命令，第一个参数为目标寄存器，剩余参数为源寄存器/立即数；`Jump` 类指令语义为：
+
+```
+COND,0x1,F1,0xFFFFFFFF -> if condition(F1, 0x1) PC += -1
+```
+
+其中 `condition` 表示对应的判断条件。
 
 模拟的硬件包含的功能组件有：
 
@@ -43,10 +53,13 @@ OPR      := "ADD" | "MUL" | "SUB" | "DIV"
 每当功能部件空闲时，从保留站选择编号较小的就绪命令进入功能组件执行。各个命令在执行阶段所需的时间为：
 
 * LD：3
-* JUMP：1
+* MOVE：0（就绪后直接写入）
+* Jump 类：1
 * ADD/SUB：3
 * MUL：12
 * DIV：40
+
+需要特别说明的是，LD 与 MOVE都使用 Load 保留站和功能组件，而 Jump 类指令有自身的保留站和运算器件，没有列出。
 
 ## 编译运行
 
