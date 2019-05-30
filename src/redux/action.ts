@@ -79,7 +79,7 @@ export function nextStep() {
     dispatch(clockForward());
 
     // wait for jump station or no more instructions
-    const tryIssue = !(getState().stall || getState().fetchEnd);
+    const jumpStall = getState().stall;
 
     // begin execution (first cycle)
     checkAllStations(getState, dispatch, StationOperation.BEGIN_EXECUTION);
@@ -90,7 +90,7 @@ export function nextStep() {
 
     // see if we can issue current instruction, by using old state before checking jumping station
     // which is equivalent to insert a delay after a jump calculation
-    if (tryIssue) {
+    if (!(jumpStall || getState().fetchEnd)) {
       const nextIns = getState().instructions[getState().pc];
       if (
         nextIns instanceof Add ||
