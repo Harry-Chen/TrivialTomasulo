@@ -10,7 +10,7 @@ import {
   ReservationStation,
 } from '../type/ReservationStation';
 import { ActionType, TomasuloAction } from './action';
-import { Add, Div, Instruction, Jump, Ld, Mul, Operation, Sub } from '../type/Instruction';
+import { Add, Div, Instruction, Jump, Ld, Move, Mul, Operation, Sub } from '../type/Instruction';
 import { Register } from '../type/Register';
 
 import produce from 'immer';
@@ -136,6 +136,12 @@ function broadcast(result: number, rs: ReservationStation, dstReg: number, state
       s.Vk = result;
     }
   }
+  for (const s of state.station.loadBuffer) {
+    if (s.source && s.source.getName() === rs.getName()) {
+      s.source = undefined;
+      s.imm = result;
+    }
+  }
   const j = state.station.jumpStation;
   if (j.Qj && j.Qj.getName() === rs.getName()) {
     j.Qj = undefined;
@@ -239,7 +245,7 @@ export default function tomasuloReducer(
           } else {
             draft.fetchEnd = true;
           }
-        } else if (ins instanceof Ld) {
+        } else if (ins instanceof Ld || ins instanceof Move) {
           const rs = draft.station.loadBuffer[action.stationNumber];
           // station status
           rs.busy = true;
@@ -247,7 +253,14 @@ export default function tomasuloReducer(
           rs.op = ins.operation;
           rs.instructionNumber = action.instructionNumber;
           // source operands
-          rs.imm = ins.srcIm;
+          if (ins instanceof Ld) {
+            // load instruction needs only immediate
+            rs.source = undefined;
+            rs.imm = ins.srcIm;
+          } else {
+            rs.source = draft.registers[ins.srcReg].source;
+            rs.imm = draft.registers[ins.srcReg].content;
+          }
           // register to write
           draft.registers[ins.dstReg].source = rs;
           // move forward
@@ -290,7 +303,7 @@ export default function tomasuloReducer(
           // occupy given function unit
           station = draft.station.mulDivStation[action.stationNumber];
           unit = draft.station.mulDivUnit[action.funcUnitNumber];
-        } else if (ins instanceof Ld) {
+        } else if (ins instanceof Ld || ins instanceof Move) {
           // occupy given function unit
           station = draft.station.loadBuffer[action.stationNumber];
           unit = draft.station.loadUnit[action.funcUnitNumber];
@@ -306,10 +319,12 @@ export default function tomasuloReducer(
         station.executionTime = draft.clock;
         station.cost = ins.cost;
 
-        // handle division by zero
+        // handle division by zero or one
         if (station instanceof MulDivStation && station.op === Operation.DIV) {
           if (station.Vk === 0) {
             station.Vk = 1;
+          }
+          if (station.Vk === 1) {
             station.cost = 1;
           }
         }
@@ -332,7 +347,7 @@ export default function tomasuloReducer(
           // release given function unit
           draft.station.mulDivUnit[action.funcUnitNumber].busy = false;
           draft.station.mulDivStation[action.stationNumber].unit = undefined;
-        } else if (ins instanceof Ld) {
+        } else if (ins instanceof Ld || ins instanceof Move) {
           // release given function unit
           draft.station.loadUnit[action.funcUnitNumber].busy = false;
           draft.station.loadBuffer[action.stationNumber].unit = undefined;
@@ -383,14 +398,15 @@ export default function tomasuloReducer(
           rs.executionTime = 0;
           // do CDB broadcast
           broadcast(result, rs, ins.dstReg, draft);
-        } else if (ins instanceof Ld) {
+        } else if (ins instanceof Ld || ins instanceof Move) {
           const rs = draft.station.loadBuffer[action.stationNumber];
+          const result = rs.imm;
           rs.imm = undefined;
           rs.busy = false;
           rs.op = undefined;
           rs.instructionNumber = undefined;
           rs.executionTime = 0;
-          broadcast(ins.srcIm, rs, ins.dstReg, draft);
+          broadcast(result, rs, ins.dstReg, draft);
         } else if (ins instanceof Jump) {
           const rs = draft.station.jumpStation;
           rs.busy = false;

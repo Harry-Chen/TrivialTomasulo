@@ -59,11 +59,13 @@ export function checkStation(
             }
           }
         } else if (rs instanceof LoadBuffer) {
-          const freeUnits = state.station.loadUnit.filter(u => !u.busy);
-          if (freeUnits.length > 0) {
-            dispatch(
-              beginExecuteInstruction(rs.instructionNumber, rs.num - 1, freeUnits[0].num - 1),
-            );
+          if (rs.source === undefined) {
+            const freeUnits = state.station.loadUnit.filter(u => !u.busy);
+            if (freeUnits.length > 0) {
+              dispatch(
+                beginExecuteInstruction(rs.instructionNumber, rs.num - 1, freeUnits[0].num - 1),
+              );
+            }
           }
         } else if (rs instanceof JumpStation) {
           if (rs.Qj === undefined) {
@@ -73,7 +75,7 @@ export function checkStation(
       }
       break;
     case StationOperation.FINISH_EXECUTION:
-      if (rs.executionTime > 0 && finishClock - 1 === state.clock) {
+      if (rs.executionFinished(state.clock)) {
         // the last clock, finish execution
         dispatch(
           finishExecuteInstruction(rs.instructionNumber, rs.num - 1, rs.unit ? rs.unit.num - 1 : 0),
@@ -81,7 +83,7 @@ export function checkStation(
       }
       break;
     case StationOperation.WRITE_BACK:
-      if (rs.executionTime > 0 && finishClock === state.clock) {
+      if (rs.writeFinished(state.clock)) {
         // execution finished, write back
         dispatch(writeInstructionResult(rs.instructionNumber, rs.num - 1));
       }

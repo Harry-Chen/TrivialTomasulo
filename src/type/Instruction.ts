@@ -13,6 +13,7 @@ export enum Operation {
   SUB = 'SUB',
   MUL = 'MUL',
   DIV = 'DIV',
+  MOVE = 'MOVE',
 }
 
 export class Instruction {
@@ -26,7 +27,35 @@ export class Instruction {
   public num: number = 0;
 }
 
-export class ThreeRegisterInstruction extends Instruction {
+export class SingleSourceSingleDestInstruction extends Instruction {
+  public dstReg: number;
+}
+
+export class Move extends SingleSourceSingleDestInstruction {
+  public cost: number = 0;
+  public operation: Operation = Operation.MOVE;
+  public srcReg: number;
+
+  constructor(srcReg: number, dstReg: number) {
+    super();
+    this.srcReg = srcReg;
+    this.dstReg = dstReg;
+  }
+}
+
+export class Ld extends SingleSourceSingleDestInstruction {
+  public cost: number = 3;
+  public operation: Operation = Operation.LD;
+  public srcIm: number;
+
+  constructor(srcIm: number, dstReg: number) {
+    super();
+    this.srcIm = srcIm;
+    this.dstReg = dstReg;
+  }
+}
+
+export class DoubleSourceSingleDestInstruction extends Instruction {
   public dstReg: number;
   public srcReg1: number;
   public srcReg2: number;
@@ -40,19 +69,6 @@ export class ThreeRegisterInstruction extends Instruction {
 
   public evaluate(a: number, b: number): number {
     throw Error('Not implemented');
-  }
-}
-
-export class Ld extends Instruction {
-  public cost: number = 3;
-  public operation: Operation = Operation.LD;
-  public srcIm: number;
-  public dstReg: number;
-
-  constructor(srcIm: number, dstReg: number) {
-    super();
-    this.srcIm = srcIm;
-    this.dstReg = dstReg;
   }
 }
 
@@ -117,7 +133,7 @@ export class Jle extends Jump {
   }
 }
 
-export class Add extends ThreeRegisterInstruction {
+export class Add extends DoubleSourceSingleDestInstruction {
   public cost: number = 3;
   public operation: Operation = Operation.ADD;
   public evaluate(a: number, b: number): number {
@@ -125,7 +141,7 @@ export class Add extends ThreeRegisterInstruction {
   }
 }
 
-export class Sub extends ThreeRegisterInstruction {
+export class Sub extends DoubleSourceSingleDestInstruction {
   public cost: number = 3;
   public operation: Operation = Operation.SUB;
   public evaluate(a: number, b: number): number {
@@ -133,7 +149,7 @@ export class Sub extends ThreeRegisterInstruction {
   }
 }
 
-export class Mul extends ThreeRegisterInstruction {
+export class Mul extends DoubleSourceSingleDestInstruction {
   public cost: number = 12;
   public operation: Operation = Operation.MUL;
   public evaluate(a: number, b: number): number {
@@ -141,7 +157,7 @@ export class Mul extends ThreeRegisterInstruction {
   }
 }
 
-export class Div extends ThreeRegisterInstruction {
+export class Div extends DoubleSourceSingleDestInstruction {
   public cost: number = 40;
   public operation: Operation = Operation.DIV;
   public evaluate(a: number, b: number): number {

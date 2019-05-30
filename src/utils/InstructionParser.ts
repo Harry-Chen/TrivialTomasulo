@@ -8,7 +8,7 @@ import {
   Jl,
   Jle,
   Jne,
-  Ld,
+  Ld, Move,
   Mul,
   Sub,
 } from '../type/Instruction';
@@ -125,6 +125,14 @@ export function parseInstructions(raw: string): Instruction[] {
           new Div(
             parseRegister(elements[2]),
             parseRegister(elements[3]),
+            parseRegister(elements[1]),
+          ),
+        );
+        break;
+      case 'MOVE':
+        instructions.push(
+          new Move(
+            parseRegister(elements[2]),
             parseRegister(elements[1]),
           ),
         );

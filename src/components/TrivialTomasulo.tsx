@@ -174,7 +174,9 @@ class TrivialTomasulo extends React.PureComponent<AppProps, typeof initialState>
                       <TableCell>Busy</TableCell>
                       <TableCell>Remaining</TableCell>
                       <TableCell>FU</TableCell>
+                      <TableCell>Operation</TableCell>
                       <TableCell>Immediate</TableCell>
+                      <TableCell>Source</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -184,7 +186,9 @@ class TrivialTomasulo extends React.PureComponent<AppProps, typeof initialState>
                         <TableCell>{i.busy ? 'Yes' : 'No'}</TableCell>
                         <TableCell>{i.remainingClock(this.props.state.clock)}</TableCell>
                         <TableCell>{i.unit ? i.unit.getName() : ''}</TableCell>
-                        <TableCell>{i.imm}</TableCell>
+                        <TableCell>{i.op}</TableCell>
+                        <TableCell>{i.source === undefined ? i.imm : ''}</TableCell>
+                        <TableCell>{i.source ? i.source.getName() : ''}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

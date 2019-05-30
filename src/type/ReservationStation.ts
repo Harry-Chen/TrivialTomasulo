@@ -25,6 +25,22 @@ export class ReservationStation {
     return `${this.type}${this.num}`;
   }
 
+  public executionFinished(clock: number): boolean {
+    if (this.executionTime === 0) return false;
+    const finishTime = this.executionTime + this.cost - 1;
+
+    // the instruction is executed and finished at the same time
+    if (this.cost === 0) {
+      return finishTime + 1 === clock;
+    } else {
+      return finishTime === clock;
+    }
+  }
+
+  public writeFinished(clock: number): boolean {
+    return this.executionTime !== 0 && this.executionTime + this.cost === clock;
+  }
+
   public remainingClock(clock: number): string {
     const remain = this.executionTime + this.cost - clock - 1;
     if (this.executionTime === 0 || remain < 0) {
@@ -52,6 +68,7 @@ export class MulDivStation extends ArithmeticStation {
 
 export class LoadBuffer extends ReservationStation {
   public type: FunctionType = FunctionType.LOAD;
+  public source: ReservationStation = undefined;
   public imm: number = undefined;
 }
 

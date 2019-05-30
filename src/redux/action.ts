@@ -1,6 +1,6 @@
 import { AnyAction } from 'redux';
 import { TomasuloStatus } from './tomasuloReducer';
-import { Add, Div, Instruction, Jump, Ld, Mul, Sub } from '../type/Instruction';
+import { Add, Div, Instruction, Jump, Ld, Move, Mul, Sub } from '../type/Instruction';
 import { checkAllStations, checkEnd, StationOperation } from '../utils/StatusChecker';
 
 export enum ActionType {
@@ -106,7 +106,7 @@ export function nextStep() {
         if (freeStations.length > 0) {
           dispatch(issueInstruction(getState().pc, freeStations[0].num - 1));
         }
-      } else if (nextIns instanceof Ld) {
+      } else if (nextIns instanceof Ld || nextIns instanceof Move) {
         const freeStations = getState().station.loadBuffer.filter(s => !s.busy);
         if (freeStations.length > 0) {
           dispatch(issueInstruction(getState().pc, freeStations[0].num - 1));
